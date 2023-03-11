@@ -1,0 +1,3 @@
+[submodule "tournament_simulations"]
+	path = tournament_simulations
+	url = git@github.com:EstefanoB/tournament_simulations.git
