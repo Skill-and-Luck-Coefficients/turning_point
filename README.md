@@ -128,7 +128,7 @@ Default values are in [`parameters.json`](https://github.com/EstefanoB/turning_p
 - **seed**
     - Integer
     - Seed which should be used for random events. 
-- **num_iteration_simulations** 
+- **num_iteration_simulation** 
     - List with two integers
     - Respectively, number of iterations and number of simulations for iterations.
         - It is split into "batches" to avoid using too much RAM.
