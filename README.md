@@ -120,6 +120,7 @@ You should move to `src/` before running scripts.
 Default values are in [`parameters.json`](https://github.com/EstefanoB/turning_point/blob/main/src/parameters.json).
 
 - **sports**
+    - List of strings
     - Sports which should be considered.
     - As mentioned in [Paths Section](#paths), filename for a sport is `f"{sport}.csv"`
 - **should_<...>_it**
