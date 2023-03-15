@@ -1,0 +1,39 @@
+{
+    "REAL_MATCHES": {
+        "sports": [
+            "basketball",
+            "soccer",
+            "handball",
+            "volleyball"
+        ],
+        "turning_point": {
+            "should_calculate_it": true,
+            "seed": 0,
+            "parameters": {
+                "num_iteration_simulation": [ 10, 100 ]
+            }
+        }
+    },
+    "PERMUTED_MATCHES": {
+        "sports": [
+            "basketball",
+            "soccer",
+            "handball",
+            "volleyball"
+        ],
+        "matches": {
+            "should_create_it": true,
+            "seed": 1,
+            "parameters": {
+                "num_permutations": 30
+            }
+        },
+        "turning_point": {
+            "should_calculate_it": true,
+            "seed": 2,
+            "parameters": {
+                "num_iteration_simulation": [ 10, 100 ]
+            }
+        }
+    }
+}
