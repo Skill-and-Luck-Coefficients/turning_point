@@ -104,6 +104,8 @@ Filename for a sport should be `f"{sport}.csv"`.
 
 Analysis can be done using files in `src/`.
 
+You should move to `src/` before running scripts.
+
 - [`create_dataset.py`](https://github.com/EstefanoB/turning_point/blob/main/src/create_dataset.py)
     - Create permutation if necessary.
     - Calculate turning point if desired.
