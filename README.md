@@ -80,7 +80,7 @@ For each expanding window:
 - Calculate ranking variance for real tournament.
 - Calculate 95% percentile of ranking variances over all simulated tournaments.
 
-Turning Point is defined to be the date from which the real ranking variance is always above the simulated 95% percentile. 
+[Turning Point](https://github.com/EstefanoB/turning_point/blob/main/src/turning_point/normal_coefficient/calculate_turning_point.py) is defined to be the date from which the real ranking variance is always above the simulated 95% percentile. 
 
 **DataFrames**
 
