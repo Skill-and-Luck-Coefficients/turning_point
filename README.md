@@ -72,6 +72,18 @@ For information about what data is expected, see data frame documentation in [Ma
 
 ### **Turning Point**
 
+**Coefficient**
+
+For a tournament, coefficient is calculated by finding when simulated ranking variances becomes considerably smaller than its real ranking variance.
+
+For each expanding window: 
+- Calculate ranking variance for real tournament.
+- Calculate 95% percentile of ranking variances over all simulated tournaments.
+
+Turning Point is defined to be the date from which the real ranking variance is always above the simulated 95% percentile. 
+
+**DataFrames**
+
 Date (or match) after which the tournament can't be considered random anymore.
 
 - **Date Turning Point**: 
