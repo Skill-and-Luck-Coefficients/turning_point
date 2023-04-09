@@ -82,8 +82,10 @@ def filter_ith_permutation(df: pd.DataFrame, permutation: str) -> pd.DataFrame:
         list[str]:
             List of permutation numbers.
     """
+    if permutation == "":
+        return df
 
-    pattern = rf".+?@.+?@?{permutation}"
+    pattern = rf".+@.+@{permutation}"
     filtered_index = df.index.get_level_values("id").str.fullmatch(pattern)
 
     return df[filtered_index]

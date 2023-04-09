@@ -114,10 +114,11 @@ def test_filter_ith_permutation():
                 [
                     "current@/one/two/three",
                     "current@/one/two/three@1",
-                    "current@/one/two/three@134",
+                    "current@/one/two/three@11",
+                    "current@/one/two/three@21",
                 ]
             ),
-            "col": [0, 1, 2],
+            "col": [0, 1, 2, 3],
         }
     ).set_index("id")
 
@@ -126,8 +127,11 @@ def test_filter_ith_permutation():
     expected_index = ["current@/one/two/three@1"]
     assert utils.filter_ith_permutation(test, "1").equals(test.loc[expected_index])
 
-    expected_index = ["current@/one/two/three@134"]
-    assert utils.filter_ith_permutation(test, "134").equals(test.loc[expected_index])
+    expected_index = ["current@/one/two/three@11"]
+    assert utils.filter_ith_permutation(test, "11").equals(test.loc[expected_index])
+
+    expected_index = ["current@/one/two/three@21"]
+    assert utils.filter_ith_permutation(test, "21").equals(test.loc[expected_index])
 
     test = pd.DataFrame(
         {
