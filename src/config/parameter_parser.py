@@ -6,6 +6,7 @@ import numpy.random as nprandom
 import pandas as pd
 
 import turning_point.normal_coefficient as nc
+import turning_point.permutation_coefficient as pc
 import turning_point.variance_stats as vs
 from logs import log, turning_logger
 from tournament_simulations.data_structures import Matches
@@ -71,6 +72,30 @@ def create_and_save_permuted_matches(
         matches.df.to_csv(save_directory / f"{filename}.csv")
 
 
+def _get_variance_stats(matches: Matches, **kwargs) -> vs.ExpandingVarStats:
+
+    """
+    This function works both for real matches and permutation matches.
+
+    For permutation matches it calculates stats for each permutation
+    separately to reduce memory usage.
+    """
+
+    all_var_stats: list[pd.DataFrame] = []
+    permutation_numbers = pc.get_permutation_numbers(matches.df)
+
+    for str_number in permutation_numbers:
+
+        turning_logger.info(f"Starting i-th permutation: {str_number}")
+
+        filtered_matches = Matches(pc.filter_ith_permutation(matches.df, str_number))
+        var_stats = vs.ExpandingVarStats.from_matches(filtered_matches, **kwargs)
+
+        all_var_stats.append(var_stats.df)
+
+    return vs.ExpandingVarStats(pd.concat(all_var_stats).sort_index())
+
+
 @log(turning_logger.info)
 def _calculate_variance_stats(
     filenames: str | list[str],
@@ -98,7 +123,7 @@ def _calculate_variance_stats(
         matches = Matches(pd.read_csv(filepath))
 
         kwargs = var_config["parameters"]
-        var_stats = vs.ExpandingVarStats.from_matches(matches, **kwargs)
+        var_stats = _get_variance_stats(matches, **kwargs)
 
         filename_to_var_stats[filename] = var_stats
 
