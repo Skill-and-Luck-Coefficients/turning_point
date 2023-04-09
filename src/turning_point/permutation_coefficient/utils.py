@@ -79,8 +79,8 @@ def filter_ith_permutation(df: pd.DataFrame, permutation: str) -> pd.DataFrame:
 
     -----
     Returns:
-        list[str]:
-            List of permutation numbers.
+        pd.DataFrame:
+            Filtered dataframe.
     """
     if permutation == "":
         return df
