@@ -1,3 +1,5 @@
+import warnings
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -26,7 +28,10 @@ def _create_boxplot_df(
 
     for sport, comparison in sport_to_tp_comparison.items():
 
-        col_comparison: pd.DataFrame = comparison.comparison[column]
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            col_comparison: pd.DataFrame = comparison.comparison[column]
+
         comparison = col_comparison[SECOND_LEVEL_COLUMNS].set_axis(
             TITLES, axis="columns"
         )
