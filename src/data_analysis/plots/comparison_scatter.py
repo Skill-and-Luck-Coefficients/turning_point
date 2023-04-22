@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.axes import Axes
 
 import data_analysis.plots.utils.utils as utils
 from turning_point.permutation_coefficient import TurningPointComparison
@@ -15,14 +16,14 @@ def plot_comparison_scatter(
 ) -> None:
 
     fig, axs = plt.subplots(nrows, ncols, figsize=figsize, sharex="all", sharey="all")
-    flat_axs = [ax for row in axs for ax in row]
+    flat_axs: list[Axes] = [ax for row in axs for ax in row]
 
     for ax, sport in zip(flat_axs, sport_to_tp_comparison):
 
         with pd.option_context("mode.use_inf_as_na", True):
             tp_column = sport_to_tp_comparison[sport].comparison[column]
+            not_na = tp_column.dropna()
 
-        not_na = tp_column.dropna()
         ax.scatter(not_na["normal"], not_na["mean"], alpha=0.3)
         ax.set_title(sport.title())
 
