@@ -29,12 +29,12 @@ class TurningPointComparison:
                     "normal"  -> turning point from original schedule,\n
                     "mean"    -> mean turning point,\n
                     "std"     -> standard deviation,\n
-                    "f{p}%"   -> percentiles: p in [2.5, 50, 97.5]
+                    "f{p}%"   -> percentiles: p in [2.5, 25, 50, 75, 97.5]
                 "%turning point" -> normalized turning point (percentage),\n
                     "normal"  -> turning point from original schedule,\n
                     "mean"    -> mean turning point,\n
                     "std"     -> standard deviation,\n
-                    "f{p}%"   -> percentiles: p in [2.5, 50, 97.5]
+                    "f{p}%"   -> percentiles: p in [2.5, 25, 50, 75, 97.5]
         ]
     """
 
@@ -59,12 +59,12 @@ class TurningPointComparison:
                         "normal"  -> turning point from original schedule,\n
                         "mean"    -> mean turning point,\n
                         "std"     -> standard deviation,\n
-                        "f{p}%"   -> percentiles: p in [2.5, 50, 97.5]
+                        "f{p}%"   -> percentiles: p in [2.5, 25, 50, 75, 97.5]
                     "%turning point" -> normalized turning point (percentage),\n
                         "normal"  -> turning point from original schedule,\n
                         "mean"    -> mean turning point,\n
                         "std"     -> standard deviation,\n
-                        "f{p}%"   -> percentiles: p in [2.5, 50, 97.5]
+                        "f{p}%"   -> percentiles: p in [2.5, 25, 50, 75, 97.5]
             ]
         """
 
@@ -81,5 +81,14 @@ class TurningPointComparison:
 
         return joined.sort_index().loc(axis="columns")[  # select in the desired order
             ["turning point", "%turning point"],
-            ["normal", "mean", "std", "2.5%", "50%", "97.5%"],
+            [
+                "normal",
+                "mean",
+                "std",
+                "2.5%",
+                "25%",
+                "50%",
+                "75%",
+                "97.5%",
+            ],
         ]

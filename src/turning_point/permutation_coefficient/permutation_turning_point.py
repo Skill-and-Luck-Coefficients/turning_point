@@ -30,7 +30,7 @@ class PermutationTurningPoint(TurningPoint):
     def statistical_measures(self) -> pd.DataFrame:
 
         """
-        Calculate mean, standard deviation and percentiles (2.5%, 50%, 97.5%)
+        Calculate mean, standard deviation and percentiles (2.5%, 25%, 50%, 75%, 97.5%)
         over all permutations.
 
         ---
@@ -43,11 +43,11 @@ class PermutationTurningPoint(TurningPoint):
                     "turning point"  -> turning point\n
                         "mean"  -> mean turning point,\n
                         "std"   -> standard deviation,\n
-                        "f{p}%" -> percentiles: p in [2.5, 50, 97.5]
+                        "f{p}%" -> percentiles: p in [2.5, 25, 50, 75, 97.5]
                     "%turning point"  -> turning point\n
                         "mean"  -> mean turning point,\n
                         "std"   -> standard deviation,\n
-                        "f{p}%" -> percentiles: p in [2.5, 50, 97.5]
+                        "f{p}%" -> percentiles: p in [2.5, 25, 50, 75, 97.5]
             ]
         """
         # rename mapper function
@@ -55,7 +55,7 @@ class PermutationTurningPoint(TurningPoint):
             *original_id, _ = id_.split("@")
             return "@".join(original_id)
 
-        percentiles = [2.5, 50, 97.5]
+        percentiles = [2.5, 25, 50, 75, 97.5]
         desired_measures = ["mean", "std"] + [f"{p}%" for p in percentiles]
 
         return (
