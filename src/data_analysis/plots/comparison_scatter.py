@@ -1,3 +1,5 @@
+import warnings
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -20,8 +22,11 @@ def plot_comparison_scatter(
 
     for ax, sport in zip(flat_axs, sport_to_tp_comparison):
 
-        with pd.option_context("mode.use_inf_as_na", True):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
             tp_column = sport_to_tp_comparison[sport].comparison[column]
+
+        with pd.option_context("mode.use_inf_as_na", True):
             not_na = tp_column.dropna()
 
         ax.scatter(not_na["normal"], not_na["mean"], alpha=0.3)
