@@ -1,4 +1,3 @@
-import functools
 from dataclasses import dataclass
 
 import pandas as pd
@@ -26,12 +25,18 @@ class PermutationTurningPoint(TurningPoint):
             ]
     """
 
-    @functools.cached_property
-    def statistical_measures(self) -> pd.DataFrame:
+    def statistical_measures(self, percentiles: list[float]) -> pd.DataFrame:
 
         """
-        Calculate mean, standard deviation and percentiles (2.5%, 25%, 50%, 75%, 97.5%)
+        Calculate mean, standard deviation and percentiles.
         over all permutations.
+
+        ---
+        Parameters:
+            percentiles: list[float]
+                Percentile values to calculate.
+
+                Percentiles should fall between 0 and 100.
 
         ---
         Returns:
@@ -43,11 +48,11 @@ class PermutationTurningPoint(TurningPoint):
                     "turning point"  -> turning point\n
                         "mean"  -> mean turning point,\n
                         "std"   -> standard deviation,\n
-                        "f{p}%" -> percentiles: p in [2.5, 25, 50, 75, 97.5]
+                        "f{p}%" -> percentiles: p in 'percentiles'
                     "%turning point"  -> turning point\n
                         "mean"  -> mean turning point,\n
                         "std"   -> standard deviation,\n
-                        "f{p}%" -> percentiles: p in [2.5, 25, 50, 75, 97.5]
+                        "f{p}%" -> percentiles: p in 'percentiles'
             ]
         """
         # rename mapper function
@@ -55,8 +60,7 @@ class PermutationTurningPoint(TurningPoint):
             *original_id, _ = id_.split("@")
             return "@".join(original_id)
 
-        percentiles = [2.5, 25, 50, 75, 97.5]
-        desired_measures = ["mean", "std"] + [f"{p}%" for p in percentiles]
+        desired_measures = ["mean", "std"] + [f"{p}%" for p in sorted(percentiles)]
 
         return (
             self.df.rename(index=_rename)

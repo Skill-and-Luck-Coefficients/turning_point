@@ -12,7 +12,10 @@ class TurningPointMock:
 
 @dataclass
 class PermutationTurningPointMock:
-    statistical_measures: pd.DataFrame
+    statistical_measures_mock: pd.DataFrame
+
+    def statistical_measures(self, percentiles: list[float]) -> pd.DataFrame:
+        return self.statistical_measures_mock
 
 
 def test_comparison():
@@ -30,7 +33,7 @@ def test_comparison():
         permutation=PermutationTurningPointMock(
             pd.DataFrame(
                 {
-                    "id": pd.Categorical(["1", "2"]),
+                    ("id", ""): pd.Categorical(["1", "2"]),
                     ("turning point", "mean"): [10, 20],
                     ("turning point", "std"): [1, 1],
                     ("turning point", "2.5%"): [1, 2],
@@ -49,7 +52,7 @@ def test_comparison():
     expected = pd.DataFrame(
         pd.DataFrame(
             {
-                "id": pd.Categorical(["1", "2"]),
+                ("id", ""): pd.Categorical(["1", "2"]),
                 ("turning point", "normal"): [20, 35],
                 ("turning point", "mean"): [10, 20],
                 ("turning point", "std"): [1, 1],
@@ -66,4 +69,4 @@ def test_comparison():
         ).set_index("id")
     )
 
-    assert test.comparison.equals(expected)
+    assert test.comparison([2.5, 50, 97.5]).equals(expected)

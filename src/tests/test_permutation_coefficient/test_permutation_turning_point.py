@@ -45,7 +45,7 @@ def test_statistical_measures(permutation_turning_point: pc.PermutationTurningPo
         .sort_index()
     )
 
-    result = permutation_turning_point.statistical_measures
+    result = permutation_turning_point.statistical_measures([2.5, 50, 97.5])
     assert result["turning point"].equals(expected_tp)
 
     expected_percentp = (

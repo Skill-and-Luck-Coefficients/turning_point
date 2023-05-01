@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from functools import cached_property
+from itertools import product
 
 import pandas as pd
 
@@ -29,24 +29,29 @@ class TurningPointComparison:
                     "normal"  -> turning point from original schedule,\n
                     "mean"    -> mean turning point,\n
                     "std"     -> standard deviation,\n
-                    "f{p}%"   -> percentiles: p in [2.5, 25, 50, 75, 97.5]
+                    "f{p}%"   -> desired percentiles
                 "%turning point" -> normalized turning point (percentage),\n
                     "normal"  -> turning point from original schedule,\n
                     "mean"    -> mean turning point,\n
                     "std"     -> standard deviation,\n
-                    "f{p}%"   -> percentiles: p in [2.5, 25, 50, 75, 97.5]
+                    "f{p}%"   -> desired percentiles
         ]
     """
 
     normal: TurningPoint
     permutation: PermutationTurningPoint
 
-    @cached_property
-    def comparison(self) -> pd.DataFrame:
+    def comparison(self, percentiles: list[float]) -> pd.DataFrame:
 
         """
         Join normal turning point values and statistical measures from
         permutation turning points.
+
+        Parameters:
+            percentiles: list[float]
+                Percentile values to calculate.
+
+                Percentiles should fall between 0 and 100.
 
         ----
         Returns:
@@ -59,17 +64,17 @@ class TurningPointComparison:
                         "normal"  -> turning point from original schedule,\n
                         "mean"    -> mean turning point,\n
                         "std"     -> standard deviation,\n
-                        "f{p}%"   -> percentiles: p in [2.5, 25, 50, 75, 97.5]
+                        "f{p}%"   -> percentiles: p in 'percentiles'
                     "%turning point" -> normalized turning point (percentage),\n
                         "normal"  -> turning point from original schedule,\n
                         "mean"    -> mean turning point,\n
                         "std"     -> standard deviation,\n
-                        "f{p}%"   -> percentiles: p in [2.5, 25, 50, 75, 97.5]
+                        "f{p}%"   -> percentiles: p in 'percentiles'
             ]
         """
 
         extended_normal = add_second_level_to_column_names(self.normal.df, "normal")
-        permutation_stats = self.permutation.statistical_measures
+        permutation_stats = self.permutation.statistical_measures(percentiles)
 
         data_type = {"id": "category"}
         joined = (
@@ -79,16 +84,10 @@ class TurningPointComparison:
             .set_index("id")
         )
 
-        return joined.sort_index().loc(axis="columns")[  # select in the desired order
-            ["turning point", "%turning point"],
-            [
-                "normal",
-                "mean",
-                "std",
-                "2.5%",
-                "25%",
-                "50%",
-                "75%",
-                "97.5%",
-            ],
-        ]
+        col_level_one_order = ["turning point", "%turning point"]
+
+        stats_cols: pd.DataFrame = permutation_stats["turning point"]
+        col_level_two_order = ["normal"] + stats_cols.columns.to_list()
+
+        col_order = list(product(col_level_one_order, col_level_two_order))
+        return joined.sort_index()[col_order]
