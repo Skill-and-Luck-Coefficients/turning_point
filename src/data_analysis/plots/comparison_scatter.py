@@ -1,16 +1,13 @@
-import warnings
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.axes import Axes
 
 import data_analysis.plots.utils.utils as utils
-from turning_point.permutation_coefficient import TurningPointComparison
 
 
 def plot_comparison_scatter(
-    sport_to_tp_comparison: dict[str, TurningPointComparison],
+    sport_to_tp_comparison: dict[str, pd.DataFrame],
     nrows: int,
     ncols: int,
     figsize: tuple[float, float],
@@ -22,9 +19,7 @@ def plot_comparison_scatter(
 
     for ax, sport in zip(flat_axs, sport_to_tp_comparison):
 
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            tp_column = sport_to_tp_comparison[sport].comparison[column]
+        tp_column = sport_to_tp_comparison[sport][column]
 
         with pd.option_context("mode.use_inf_as_na", True):
             not_na = tp_column.dropna()
