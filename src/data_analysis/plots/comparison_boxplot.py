@@ -1,10 +1,6 @@
-import warnings
-
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-
-from turning_point.permutation_coefficient import TurningPointComparison
 
 BOXPLOT_THEME = {
     "context": "talk",
@@ -18,7 +14,7 @@ BOXPLOT_THEME = {
 
 
 def _create_boxplot_df(
-    sport_to_tp_comparison: dict[str, TurningPointComparison], column: str
+    sport_to_tp_comparison: dict[str, pd.DataFrame], column: str
 ) -> pd.DataFrame:
 
     TITLES = ["Normal", "Permuted"]
@@ -28,9 +24,7 @@ def _create_boxplot_df(
 
     for sport, comparison in sport_to_tp_comparison.items():
 
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            col_comparison: pd.DataFrame = comparison.comparison[column]
+        col_comparison: pd.DataFrame = comparison[column]
 
         comparison = col_comparison[SECOND_LEVEL_COLUMNS].set_axis(
             TITLES, axis="columns"
@@ -49,7 +43,7 @@ def _create_boxplot_df(
 
 
 def plot_comparison_boxplot(
-    sport_to_tp_comparison: dict[str, TurningPointComparison],
+    sport_to_tp_comparison: dict[str, pd.DataFrame],
     column: str = "%turning point",
 ) -> None:
 
