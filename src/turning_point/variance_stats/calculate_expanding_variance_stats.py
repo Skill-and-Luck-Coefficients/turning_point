@@ -3,7 +3,7 @@ from typing import Callable, Concatenate, Literal, ParamSpec
 import numpy as np
 import pandas as pd
 
-from logs import log, turning_logger
+from logs import log, log_iterations, turning_logger
 from tournament_simulations.data_structures import Matches
 
 from .get_matches_in_window import select_matches_inside_window
@@ -31,7 +31,8 @@ def _expanding_template(
 
     last_date = matches.df.index.get_level_values("date number").max()
 
-    for date in range(last_date + 1):
+    dates = range(last_date + 1)
+    for date in log_iterations(dates, turning_logger.info, every_n=10):
 
         matches_window = select_matches_inside_window(
             matches, first_date=0, last_date=date
