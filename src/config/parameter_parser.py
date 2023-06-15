@@ -9,8 +9,9 @@ import turning_point.normal_coefficient as nc
 import turning_point.permutation_coefficient as pc
 import turning_point.variance_stats as vs
 from logs import log, turning_logger
+from synthetic_tournaments import PermutationScheduler
 from tournament_simulations.data_structures import Matches
-from tournament_simulations.schedules.permutation import MatchesPermutations
+from tournament_simulations.permutations import MatchesPermutations
 
 from . import types
 
@@ -28,7 +29,6 @@ def _create_synthetic_matches(
     read_directory: Path,
     permuted_config: types.PermutedMatches,
 ) -> dict[str, Matches]:
-
     if not permuted_config["should_create_it"]:
         return {}
 
@@ -38,14 +38,14 @@ def _create_synthetic_matches(
     filename_to_matches = {}
 
     for filename in filenames:
-
         filepath = read_directory / f"{filename}.csv"
         if not filepath.exists():
             turning_logger.warning(f"No file: {filepath}")
             continue
 
         matches = Matches(pd.read_csv(filepath))
-        permutations_creator = MatchesPermutations(matches)
+        scheduler = PermutationScheduler.from_matches(matches)
+        permutations_creator = MatchesPermutations(matches, scheduler)
 
         num_permutations = permuted_config["parameters"]["num_permutations"]
         permuted_matches = permutations_creator.create_n_permutations(num_permutations)
@@ -60,7 +60,6 @@ def create_and_save_permuted_matches(
     read_directory: Path,
     save_directory: Path,
 ) -> None:
-
     filename_to_matches = _create_synthetic_matches(
         config["sports"],
         read_directory,
@@ -73,7 +72,6 @@ def create_and_save_permuted_matches(
 
 
 def _get_variance_stats(matches: Matches, **kwargs) -> vs.ExpandingVarStats:
-
     """
     This function works both for real matches and permutation matches.
 
@@ -85,10 +83,9 @@ def _get_variance_stats(matches: Matches, **kwargs) -> vs.ExpandingVarStats:
     permutation_numbers = pc.get_permutation_numbers(matches.df)
 
     for str_number in permutation_numbers:
-
         turning_logger.info(f"Starting i-th permutation: {str_number}")
 
-        filtered_matches = Matches(pc.filter_ith_permutation(matches.df, str_number))
+        filtered_matches = Matches(pc.get_ith_permutation(matches.df, str_number))
         var_stats = vs.ExpandingVarStats.from_matches(filtered_matches, **kwargs)
 
         all_var_stats.append(var_stats.df)
@@ -102,7 +99,6 @@ def _calculate_variance_stats(
     read_directory: Path,
     var_config: types.TurningPointConfig,
 ) -> dict[str, vs.ExpandingVarStats]:
-
     if not var_config["should_calculate_it"]:
         return {}
 
@@ -114,7 +110,6 @@ def _calculate_variance_stats(
     filename_to_var_stats = {}
 
     for filename in filenames:
-
         filepath = read_directory / f"{filename}.csv"
         if not filepath.exists():
             turning_logger.warning(f"No file: {filepath}")
@@ -135,7 +130,6 @@ def calculate_and_save_var_stats(
     read_directory: Path,
     save_directory: Path,
 ) -> None:
-
     filename_to_var_stats = _calculate_variance_stats(
         config["sports"],
         read_directory,
@@ -153,14 +147,12 @@ def _calculate_turning_point(
     read_directory: Path,
     tp_config: types.TurningPointConfig,
 ) -> dict[str, nc.TurningPoint]:
-
     if not tp_config["should_calculate_it"]:
         return {}
 
     filename_to_turning_point = {}
 
     for filename in filenames:
-
         filepath = read_directory / f"{filename}.csv"
         if not filepath.exists():
             turning_logger.warning(f"No file: {filepath}")
@@ -180,7 +172,6 @@ def calculate_and_save_turning_points(
     read_directory: Path,
     save_directory: Path,
 ) -> None:
-
     filename_to_turning_point = _calculate_turning_point(
         config["sports"],
         read_directory,

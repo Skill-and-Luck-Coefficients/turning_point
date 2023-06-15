@@ -1,4 +1,4 @@
-from typing import Iterable, Literal
+from typing import Literal, Sequence
 
 import numpy as np
 import pandas as pd
@@ -9,38 +9,37 @@ from turning_point.variance_stats import ExpandingVarStats
 KwargsTP = dict[Literal["df"], pd.DataFrame]
 
 
-def _find_turning_point_one_id(iter: Iterable[bool]) -> int:
+def _find_turning_point_one_id(sequence: Sequence[bool]) -> float:
+    """
+    Turning point is the index for a sequence of True until the end.
+    """
 
-    """Turning point is the index for a sequence of True until the end."""
-
-    if len(iter) == 0:
+    if len(sequence) == 0:
         return np.nan
 
     # if the last position is False, there can't be such a sequence
-    if not iter[-1]:
+    if not sequence[-1]:
         return np.inf
 
     # finding a sequence of true in the end is related to
     # finding the first occurrence of False in the reversed iterator
-    for index, boolean in enumerate(reversed(iter)):
+    for index, boolean in enumerate(reversed(sequence)):
         if not boolean:
-            return len(iter) - index
+            return len(sequence) - index
     return 0
 
 
-def _find_turning_point_percent_one_id(iter: Iterable[bool]) -> int:
-
-    if len(iter) == 0:
+def _find_turning_point_percent_one_id(sequence: Sequence[bool]) -> float:
+    if len(sequence) == 0:
         return np.nan
 
-    return (_find_turning_point_one_id(iter) + 1) / len(iter)
+    return (_find_turning_point_one_id(sequence) + 1) / len(sequence)
 
 
 @log(turning_logger.debug)
 def get_kwargs_from_expanding_variances_stats(
     expanding_var: ExpandingVarStats,
 ) -> KwargsTP:
-
     """
     Calculate turning point.
 

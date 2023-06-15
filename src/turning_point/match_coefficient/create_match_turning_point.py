@@ -12,8 +12,7 @@ KwargsMTP = dict[Literal["df"], pd.DataFrame]
 
 def _count_number_and_percentage_of_matches_in_interval(
     index_and_turning_point: tuple[str, float], matches: Matches
-) -> int:
-
+) -> tuple[float, float]:
     tourney_id, turning_point = index_and_turning_point
 
     if np.isinf(turning_point) or np.isnan(turning_point):
@@ -29,7 +28,6 @@ def _count_number_and_percentage_of_matches_in_interval(
 def get_kwargs_from_matches_turning_point(
     matches: Matches, turning_point: TurningPoint
 ) -> KwargsMTP:
-
     """
     Calculate match turning point.
 

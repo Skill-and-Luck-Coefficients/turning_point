@@ -3,7 +3,6 @@ import pandas as pd
 
 
 def add_second_level_to_column_names(df: pd.DataFrame, name: str) -> pd.DataFrame:
-
     """
     Add second level to df columns index.
 
@@ -33,7 +32,6 @@ def add_second_level_to_column_names(df: pd.DataFrame, name: str) -> pd.DataFram
 
 
 def get_permutation_numbers(df: pd.DataFrame) -> list[str]:
-
     """
     Given a dataframe, returns a list of permutation numbers (as strings).
     If there are no permutation number, returns a list with an empty string.
@@ -60,10 +58,9 @@ def get_permutation_numbers(df: pd.DataFrame) -> list[str]:
     return list(np.unique(all_permutation_numbers.to_numpy().flatten()))
 
 
-def filter_ith_permutation(df: pd.DataFrame, permutation: str) -> pd.DataFrame:
-
+def get_ith_permutation(df: pd.DataFrame, permutation: str) -> pd.DataFrame:
     """
-    Filter ith permutation of a dataframe.
+    Get i-th permutation of a dataframe.
     If permutation is an empty str, the entire dataframe will be returned instead.
 
     ----

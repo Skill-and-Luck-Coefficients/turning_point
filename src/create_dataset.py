@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 
 from config import parser, path
 from logs import turning_logger
@@ -7,10 +8,9 @@ LOG_LEVEL = logging.INFO
 
 
 def main() -> None:
-
     turning_logger.setLevel(LOG_LEVEL)
 
-    configuration = parser.read_json_configuration("parameters.json")
+    configuration = parser.read_json_configuration(Path("parameters.json"))
     real_cfg = configuration["REAL_MATCHES"]
     perm_cfg = configuration["PERMUTED_MATCHES"]
 
