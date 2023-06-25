@@ -4,7 +4,6 @@ import turning_point.permutation_coefficient.utils as utils
 
 
 def test_add_second_level_to_column_names():
-
     test = pd.DataFrame(
         {
             "id": pd.Categorical([0, 1, 3, 5]),
@@ -14,7 +13,6 @@ def test_add_second_level_to_column_names():
     ).set_index("id")
 
     for name in ["ok", "test", "level2", 59]:
-
         expected = pd.DataFrame(
             {
                 "id": pd.Categorical([0, 1, 3, 5]),
@@ -27,7 +25,6 @@ def test_add_second_level_to_column_names():
 
 
 def test_get_permutation_numbers():
-
     test = pd.DataFrame(
         {
             "id": pd.Categorical(
@@ -92,7 +89,6 @@ def test_get_permutation_numbers():
 
 
 def test_filter_ith_permutation():
-
     test = pd.DataFrame(
         {
             "id": pd.Categorical(
@@ -106,7 +102,7 @@ def test_filter_ith_permutation():
         }
     ).set_index("id")
 
-    assert utils.filter_ith_permutation(test, "").equals(test)
+    assert utils.get_ith_permutation(test, "").equals(test)
 
     test = pd.DataFrame(
         {
@@ -122,16 +118,16 @@ def test_filter_ith_permutation():
         }
     ).set_index("id")
 
-    assert utils.filter_ith_permutation(test, "").equals(test)
+    assert utils.get_ith_permutation(test, "").equals(test)
 
     expected_index = ["current@/one/two/three@1"]
-    assert utils.filter_ith_permutation(test, "1").equals(test.loc[expected_index])
+    assert utils.get_ith_permutation(test, "1").equals(test.loc[expected_index])
 
     expected_index = ["current@/one/two/three@11"]
-    assert utils.filter_ith_permutation(test, "11").equals(test.loc[expected_index])
+    assert utils.get_ith_permutation(test, "11").equals(test.loc[expected_index])
 
     expected_index = ["current@/one/two/three@21"]
-    assert utils.filter_ith_permutation(test, "21").equals(test.loc[expected_index])
+    assert utils.get_ith_permutation(test, "21").equals(test.loc[expected_index])
 
     test = pd.DataFrame(
         {
@@ -155,13 +151,13 @@ def test_filter_ith_permutation():
         }
     ).set_index("id")
 
-    assert utils.filter_ith_permutation(test, "").equals(test)
+    assert utils.get_ith_permutation(test, "").equals(test)
 
     expected_index = ["current@/one@0", "current@/two@0"]
-    assert utils.filter_ith_permutation(test, "0").equals(test.loc[expected_index])
+    assert utils.get_ith_permutation(test, "0").equals(test.loc[expected_index])
 
     expected_index = ["current@/one@1", "current@/two@1"]
-    assert utils.filter_ith_permutation(test, "1").equals(test.loc[expected_index])
+    assert utils.get_ith_permutation(test, "1").equals(test.loc[expected_index])
 
     expected_index = ["current@/two@2"]
-    assert utils.filter_ith_permutation(test, "2").equals(test.loc[expected_index])
+    assert utils.get_ith_permutation(test, "2").equals(test.loc[expected_index])

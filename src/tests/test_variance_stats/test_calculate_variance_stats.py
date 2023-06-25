@@ -15,7 +15,6 @@ def mean(*args):
 
 
 def test_calculate_quantile__one():
-
     test_cols = {
         "id": pd.Categorical(["1", "1", "2", "2", "3"]),
         "s1": [1, 1, 2, 2, 2],
@@ -49,7 +48,6 @@ def test_calculate_quantile__one():
 
 
 def test_calculate_quantile__two():
-
     test_cols = {
         "id": pd.Categorical(["1", "1", "2", "2", "2"]),
         "final date": [0, 1, 0, 1, 2],
@@ -88,7 +86,6 @@ def test_calculate_quantile__two():
 
 
 def test_get_kwargs_from_variances():
-
     test_real_cols = {
         "id": pd.Categorical(["1", "2", "3", "4", "5"]),
         "real var": [0.45, 5.83, 4.29, 5.36, 9.37],
@@ -130,10 +127,10 @@ def test_get_kwargs_from_variances():
     assert vst.get_kwargs_from_variances(test)["df"].equals(expected)
 
 
-def get_kwargs_from_matches():
-
+def test_get_kwargs_from_matches():
     test_cols = {
         "id": pd.Categorical(["1", "1", "2", "2", "2"]),
+        "date number": [0, 0, 0, 0, 0],
         "home": pd.Categorical(["A", "A", "a", "b", "a"]),
         "away": pd.Categorical(["B", "B", "b", "c", "d"]),
         "winner": ["a", "a", "d", "d", "d"],
@@ -169,3 +166,48 @@ def get_kwargs_from_matches():
 
     assert vst.get_kwargs_from_matches(test, (2, 3))["df"].equals(expected)
     assert vst.get_kwargs_from_matches(test, (3, 2))["df"].equals(expected)
+
+
+def test_get_kwargs_from_matches_bigger_in_to_probabilities():
+    test_cols = {
+        "id": pd.Categorical(["1", "1", "2", "2", "2"]),
+        "date number": [0, 0, 0, 0, 0],
+        "home": pd.Categorical(["A", "A", "a", "b", "a"]),
+        "away": pd.Categorical(["B", "B", "b", "c", "d"]),
+        "winner": ["a", "a", "d", "d", "d"],
+    }
+    test = Matches(pd.DataFrame(test_cols).set_index(["id", "date number"]))
+    id_to_prob = pd.Series(
+        index=["0", "1", "2", "3", "4"],
+        data=[(0, 1, 0), (0, 0, 1), (0, 1, 0), (0.5, 0.5, 0), (0.33, 0.33, 0.34)],
+    )
+
+    first_id_vars = [
+        np.var([0, 6], ddof=1),
+        np.var([0, 6], ddof=1),
+        np.var([0, 6], ddof=1),
+        np.var([0, 6], ddof=1),
+        np.var([0, 6], ddof=1),
+        np.var([0, 6], ddof=1),
+    ]
+
+    second_id_vars = [
+        np.var([2, 2, 1, 1], ddof=1),
+        np.var([2, 2, 1, 1], ddof=1),
+        np.var([2, 2, 1, 1], ddof=1),
+        np.var([2, 2, 1, 1], ddof=1),
+        np.var([2, 2, 1, 1], ddof=1),
+        np.var([2, 2, 1, 1], ddof=1),
+    ]
+
+    expected = pd.DataFrame(
+        {
+            "id": pd.Categorical(["1", "2"]),
+            "real var": [np.var([0, 6], ddof=1), np.var([2, 2, 1, 1], ddof=1)],
+            "mean": [mean(*first_id_vars), mean(*second_id_vars)],
+            "0.950-quantile": [nfp(*first_id_vars), nfp(*second_id_vars)],
+        }
+    ).set_index("id")
+
+    assert vst.get_kwargs_from_matches(test, (2, 3), id_to_prob)["df"].equals(expected)
+    assert vst.get_kwargs_from_matches(test, (3, 2), id_to_prob)["df"].equals(expected)

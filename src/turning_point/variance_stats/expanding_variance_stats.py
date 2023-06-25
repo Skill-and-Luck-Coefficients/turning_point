@@ -32,7 +32,6 @@ class ExpandingVarStats:
     df: pd.DataFrame
 
     def __post_init__(self) -> None:
-
         index_cols = ["id", "final date"]
 
         index_to_reset = [name for name in index_cols if name in self.df.index.names]
@@ -43,9 +42,11 @@ class ExpandingVarStats:
 
     @classmethod
     def from_matches(
-        cls, matches: Matches, num_iteration_simulation: tuple[int, int]
+        cls,
+        matches: Matches,
+        num_iteration_simulation: tuple[int, int],
+        id_to_probabilities: pd.Series | None = None,
     ) -> ExpandingVarStats:
-
         """
         Create an instance of ExpandingSimulVarStats from Matches.
 
@@ -59,7 +60,16 @@ class ExpandingVarStats:
             num_iteration_simulation: tuple[int, int]
                 Respectively, number of iterations and number of
                 simulations per iteration (batch size).
+
+            id_to_probabilities: pd.Series | None = None
+                Series mapping each tournament to its estimated probabilities.
+
+                Probabilities: (prob home win, prob draw, prob away win).
+
+                If None, they will be estimated directly from 'matches'.
         """
 
-        params = get_kwargs_expanding_from_matches(matches, num_iteration_simulation)
+        params = get_kwargs_expanding_from_matches(
+            matches, num_iteration_simulation, id_to_probabilities
+        )
         return cls(**params)

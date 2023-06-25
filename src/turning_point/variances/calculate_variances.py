@@ -10,7 +10,6 @@ KwargsVar = dict[Literal["real", "simulated"], pd.DataFrame]
 
 
 def _calculate_ranking_variances_per_id(df: pd.DataFrame) -> pd.DataFrame:
-
     rankings = df.groupby(["id", "team"], observed=True).sum()
     return rankings.groupby("id", observed=True).var()
 
@@ -19,8 +18,8 @@ def _calculate_ranking_variances_per_id(df: pd.DataFrame) -> pd.DataFrame:
 def get_kwargs_from_points_per_match(
     ppm: PointsPerMatch,
     num_iteration_simulation: tuple[int, int],
+    id_to_probabilities: pd.Series | None = None,
 ) -> KwargsVar:
-
     """
     Simulates all tournaments and returns its variances.
 
@@ -34,6 +33,13 @@ def get_kwargs_from_points_per_match(
             Respectively, number of iterations and number
             of simulations per iteration (batch size).
 
+        id_to_probabilities: pd.Series | None = None
+            Series mapping each tournament to its estimated probabilities.
+
+            Probabilities: (prob home win, prob draw, prob away win).
+
+            If None, they will be estimated directly from 'ppm'.
+
     -----
     Returns:
         Kwargs parameters to create an instance of Variance
@@ -46,6 +52,7 @@ def get_kwargs_from_points_per_match(
     simul_ppm = SimulatePointsPerMatch(ppm)
     simulated_variances = simul_ppm.tournament_wide(
         num_iteration_simulation=num_iteration_simulation,
+        id_to_probabilities=id_to_probabilities,
         func_after_simulation=_calculate_ranking_variances_per_id,
     )
 

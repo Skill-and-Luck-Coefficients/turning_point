@@ -43,7 +43,6 @@ class Variances:
     simulated: pd.DataFrame
 
     def __post_init__(self) -> None:
-
         index_cols = ["id"]
 
         to_reset = [name for name in index_cols if name in self.real.index.names]
@@ -63,8 +62,8 @@ class Variances:
         cls,
         ppm: PointsPerMatch,
         num_iteration_simulation: tuple[int, int],
+        id_to_probabilities: pd.Series | None = None,
     ) -> Variances:
-
         """
         Creates an instance from PointsPerMatch.
 
@@ -77,7 +76,16 @@ class Variances:
             num_iteration_simulation: tuple[int, int]
                 Respectively, number of iterations and number
                 of simulations per iteration (batch size).
+
+            id_to_probabilities: pd.Series | None = None
+                Series mapping each tournament to its estimated probabilities.
+
+                Probabilities: (prob home win, prob draw, prob away win).
+
+                If None, they will be estimated directly from 'ppm'.
         """
 
-        parameters = get_kwargs_from_points_per_match(ppm, num_iteration_simulation)
+        parameters = get_kwargs_from_points_per_match(
+            ppm, num_iteration_simulation, id_to_probabilities
+        )
         return cls(**parameters)

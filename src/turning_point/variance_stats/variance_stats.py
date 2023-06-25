@@ -33,7 +33,6 @@ class SimulationVarStats:
     df: pd.DataFrame
 
     def __post_init__(self) -> None:
-
         index_cols = ["id"]
 
         index_to_reset = [name for name in index_cols if name in self.df.index.names]
@@ -44,7 +43,6 @@ class SimulationVarStats:
 
     @classmethod
     def from_variances(cls, variances: Variances) -> SimulationVarStats:
-
         """
         Create an instance of SimulationVarStats from variances.
 
@@ -59,9 +57,11 @@ class SimulationVarStats:
 
     @classmethod
     def from_matches(
-        cls, matches: Matches, num_iteration_simulation: tuple[int, int]
+        cls,
+        matches: Matches,
+        num_iteration_simulation: tuple[int, int],
+        id_to_probabilities: pd.Series | None = None,
     ) -> SimulationVarStats:
-
         """
         Create an instance of SimulationVarStats from Matches.
 
@@ -74,6 +74,15 @@ class SimulationVarStats:
             num_iteration_simulation: tuple[int, int]
                 Respectively, number of iterations and number of
                 simulations per iteration (batch size).
+
+            id_to_probabilities: pd.Series | None = None
+                Series mapping each tournament to its estimated probabilities.
+
+                Probabilities: (prob home win, prob draw, prob away win).
+
+                If None, they will be estimated directly from 'matches'.
         """
-        parameters = get_kwargs_from_matches(matches, num_iteration_simulation)
+        parameters = get_kwargs_from_matches(
+            matches, num_iteration_simulation, id_to_probabilities
+        )
         return cls(**parameters)

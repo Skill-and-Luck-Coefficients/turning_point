@@ -9,7 +9,6 @@ KwargsSVS = dict[Literal["df"], pd.DataFrame]
 
 
 def _calculate_mean_quantile(simul_var_df: pd.DataFrame) -> pd.DataFrame:
-
     quantile = simul_var_df.quantile(0.95, axis=1).rename("0.950-quantile")
     mean = simul_var_df.mean(axis=1).rename("mean")
 
@@ -17,7 +16,6 @@ def _calculate_mean_quantile(simul_var_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def get_kwargs_from_variances(variances: Variances) -> KwargsSVS:
-
     """
     Get Kwargs parameters to create an instance of SimulationVarStats
 
@@ -40,9 +38,10 @@ def get_kwargs_from_variances(variances: Variances) -> KwargsSVS:
 
 
 def get_kwargs_from_matches(
-    matches: Matches, num_iteration_simulation: tuple[int, int]
+    matches: Matches,
+    num_iteration_simulation: tuple[int, int],
+    id_to_probabilities: pd.Series | None = None,
 ) -> KwargsSVS:
-
     """
     Get Kwargs parameters to create an instance of SimulationVarStats
 
@@ -56,6 +55,13 @@ def get_kwargs_from_matches(
             Respectively, number of iterations and number of
             simulations per iteration (batch size).
 
+        id_to_probabilities: pd.Series | None = None
+            Series mapping each tournament to its estimated probabilities.
+
+            Probabilities: (prob home win, prob draw, prob away win).
+
+            If None, they will be estimated directly from 'matches'.
+
     ----
     Returns:
 
@@ -65,7 +71,13 @@ def get_kwargs_from_matches(
     """
     ppm = PointsPerMatch.from_home_away_winner(matches.home_away_winner)
 
-    variances = Variances.from_points_per_match(ppm, num_iteration_simulation)
+    if id_to_probabilities is not None:
+        desired_ids = ppm.df.index.get_level_values("id").unique().sort_values()
+        id_to_probabilities = id_to_probabilities.loc[desired_ids]
+
+    variances = Variances.from_points_per_match(
+        ppm, num_iteration_simulation, id_to_probabilities
+    )
 
     simulated_stats = _calculate_mean_quantile(variances.simulated)
     return {"df": pd.concat([variances.real, simulated_stats], axis=1)}

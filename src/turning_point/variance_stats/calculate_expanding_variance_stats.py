@@ -19,7 +19,6 @@ def _expanding_template(
     *args: P.args,
     **kwargs: P.kwargs
 ) -> pd.DataFrame:
-
     """
     Creating this template makes testing easier, since 'expanding_func'
     can be a simple function.
@@ -33,7 +32,6 @@ def _expanding_template(
 
     dates = range(last_date + 1)
     for date in log_iterations(dates, turning_logger.info, every_n=10):
-
         matches_window = select_matches_inside_window(
             matches, first_date=0, last_date=date
         )
@@ -48,9 +46,10 @@ def _expanding_template(
 
 @log(turning_logger.debug)
 def get_kwargs_expanding_from_matches(
-    matches: Matches, num_iteration_simulation: tuple[int, int]
+    matches: Matches,
+    num_iteration_simulation: tuple[int, int],
+    id_to_probabilities: pd.Series | None = None,
 ) -> KwargsEW:
-
     """
     Iterated dynamic skill coefficient and removed teams for all possible
     expanding windows:
@@ -71,6 +70,13 @@ def get_kwargs_expanding_from_matches(
             Respectively, number of iterations and number of
             simulations per iteration (batch size).
 
+        id_to_probabilities: pd.Series | None = None
+            Series mapping each tournament to its estimated probabilities.
+
+            Probabilities: (prob home win, prob draw, prob away win).
+
+            If None, they will be estimated directly from 'matches'.
+
     -----
     Returns:
         Kwargs parameters required to create and instance of ExpandingCoefAndTeams
@@ -87,6 +93,7 @@ def get_kwargs_expanding_from_matches(
         expanding_func=_simulation_var_stats,
         # other parameters for expanding_func
         num_iteration_simulation=num_iteration_simulation,
+        id_to_probabilities=id_to_probabilities,
     )
 
     return {"df": expading_df}

@@ -86,7 +86,11 @@ def _get_variance_stats(matches: Matches, **kwargs) -> vs.ExpandingVarStats:
         turning_logger.info(f"Starting i-th permutation: {str_number}")
 
         filtered_matches = Matches(pc.get_ith_permutation(matches.df, str_number))
-        var_stats = vs.ExpandingVarStats.from_matches(filtered_matches, **kwargs)
+        var_stats = vs.ExpandingVarStats.from_matches(
+            filtered_matches,
+            id_to_probabilities=filtered_matches.probabilities_per_id,
+            **kwargs,
+        )
 
         all_var_stats.append(var_stats.df)
 
