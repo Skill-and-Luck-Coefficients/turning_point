@@ -1,3 +1,4 @@
-from .permutation_scheduler import PermutationScheduler
+from . import permutation
+from .scheduler import Scheduler
 
-__all__ = ["PermutationScheduler"]
+__all__ = ["permutation", "Scheduler"]

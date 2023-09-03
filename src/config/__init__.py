@@ -9,7 +9,4 @@ all dataset preparation modules.
 from . import dataset_paths as path
 from . import parameter_parser as parser
 
-__all__ = [
-    "path",
-    "parser",
-]
+__all__ = ["path", "parser"]

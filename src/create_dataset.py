@@ -10,13 +10,15 @@ LOG_LEVEL = logging.INFO
 def main() -> None:
     turning_logger.setLevel(LOG_LEVEL)
 
-    configuration = parser.read_json_configuration(Path("parameters.json"))
+    json_path = Path("parameters.json")
+    configuration = parser.read_parameters.read_json_configuration(json_path)
+
     real_cfg = configuration["REAL_MATCHES"]
     perm_cfg = configuration["PERMUTED_MATCHES"]
 
     # SYNTHETIC MATCHES
     #   Permutation Matches
-    parser.create_and_save_permuted_matches(
+    parser.permutations.create_and_save_permuted_matches(
         config=perm_cfg,
         read_directory=path.MATCHES_PATH,
         save_directory=path.PERMUTED_MATCHES_PATH,
@@ -29,7 +31,7 @@ def main() -> None:
         (perm_cfg, path.PERMUTED_MATCHES_PATH, path.PERMUTED_VARIANCE_STATS_PATH),
     ]
     for variance_parameters in var_config_read_dir_save_dir:
-        parser.calculate_and_save_var_stats(*variance_parameters)
+        parser.variances.calculate_and_save_var_stats(*variance_parameters)
 
     #   Turning Point
     tp_config_read_dir_save_dir = [
@@ -37,7 +39,7 @@ def main() -> None:
         (perm_cfg, path.PERMUTED_VARIANCE_STATS_PATH, path.PERMUTED_TURNING_POINT_PATH),
     ]
     for turning_parameters in tp_config_read_dir_save_dir:
-        parser.calculate_and_save_turning_points(*turning_parameters)
+        parser.turning_point.calculate_and_save_turning_points(*turning_parameters)
 
 
 if __name__ == "__main__":
