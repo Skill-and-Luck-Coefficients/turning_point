@@ -6,7 +6,7 @@ from tournament_simulations.permutations import TournamentScheduler
 from tournament_simulations.schedules import Round
 
 from .num_schedules import from_matches
-from .team_names import from_current_rankings
+from .team_names import from_current_rankings, from_previous_rankings
 from .utils import agg_tuple_per_id
 
 
@@ -30,6 +30,21 @@ class Scheduler:
         Create TournamentScheduler using current rankings.
         """
         id_to_team_names = from_current_rankings(self.matches)
+        id_to_num_schedules = from_matches(self.matches)
+
+        to_agg = [id_to_team_names, id_to_num_schedules]
+        id_to_parameters = agg_tuple_per_id(to_agg)
+
+        return TournamentScheduler(self.func, id_to_parameters)
+
+    def get_previous_year_scheduler(self) -> TournamentScheduler:
+        """
+        Create TournamentScheduler using the previous year's rankings.
+
+        You don't need to preprocess, the same 'matches' that can
+        be used for .get_current_scheduler(...) is used for this one.
+        """
+        id_to_team_names = from_previous_rankings(self.matches)
         id_to_num_schedules = from_matches(self.matches)
 
         to_agg = [id_to_team_names, id_to_num_schedules]

@@ -1,6 +1,9 @@
-from typing import TypedDict
+from typing import Literal, TypedDict
 
 Sports = list[str]
+OptimalScheduleTypes = Literal[
+    "tp_minimizer", "tp_maximizer", "tp_minimizer_random", "tp_maximizer_random"
+]
 
 
 class PermutedMatchesParameters(TypedDict):
@@ -65,6 +68,38 @@ class PermutedConfig(TypedDict):
     turning_point: TurningPointConfig
 
 
+class OptimalMatchesParameters(TypedDict):
+    """
+    types: OptimalScheduleTypes | list[OptimalScheduleTypes]
+    """
+
+    types: OptimalScheduleTypes | list[OptimalScheduleTypes]
+
+
+class OptimalMatchesConfig(TypedDict):
+    """
+    should_create_it: bool
+    seed: int
+    parameters: OptimalMatchesParameters
+    """
+
+    should_create_it: bool
+    seed: int
+    parameters: OptimalMatchesParameters
+
+
+class OptimalConfig(TypedDict):
+    """
+    sports: Sports
+    matches: OptimalMatchesConfig
+    turning_point: TurningPointConfig
+    """
+
+    sports: Sports
+    matches: OptimalMatchesConfig
+    turning_point: TurningPointConfig
+
+
 class ConfigurationType(TypedDict):
     """
     REAL_MATCHES: RealMatchesConfig
@@ -73,3 +108,4 @@ class ConfigurationType(TypedDict):
 
     REAL_MATCHES: RealConfig
     PERMUTED_MATCHES: PermutedConfig
+    OPTIMAL_SCHEDULE: OptimalConfig

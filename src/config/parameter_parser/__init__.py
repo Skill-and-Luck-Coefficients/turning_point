@@ -1,3 +1,9 @@
-from . import permutations, read_parameters, turning_point, variances
+from . import optimal_schedule, permutations, read_parameters, turning_point, variances
 
-__all__ = ["permutations", "read_parameters", "turning_point", "variances"]
+__all__ = [
+    "optimal_schedule",
+    "permutations",
+    "read_parameters",
+    "turning_point",
+    "variances",
+]

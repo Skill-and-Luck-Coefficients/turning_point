@@ -21,12 +21,12 @@ def _get_variance_stats(matches: Matches, **kwargs) -> vs.ExpandingVarStats:
     """
 
     all_var_stats: list[pd.DataFrame] = []
-    permutation_numbers = pc.get_permutation_numbers(matches.df)
+    permutation_ids = pc.get_permutation_identifiers(matches.df)
 
-    for str_number in permutation_numbers:
-        turning_logger.info(f"Starting i-th permutation: {str_number}")
+    for perm_id in permutation_ids:
+        turning_logger.info(f"Starting i-th permutation: {perm_id}")
 
-        filtered_matches = Matches(pc.get_ith_permutation(matches.df, str_number))
+        filtered_matches = Matches(pc.get_data_with_identifier(matches.df, perm_id))
         var_stats = vs.ExpandingVarStats.from_matches(
             filtered_matches,
             id_to_probabilities=filtered_matches.probabilities_per_id,

@@ -31,10 +31,10 @@ def add_second_level_to_column_names(df: pd.DataFrame, name: str) -> pd.DataFram
     return df.set_axis(new_columns, axis="columns")
 
 
-def get_permutation_numbers(df: pd.DataFrame) -> list[str]:
+def get_permutation_identifiers(df: pd.DataFrame) -> list[str]:
     """
-    Given a dataframe, returns a list of permutation numbers (as strings).
-    If there are no permutation number, returns a list with an empty string.
+    Given a dataframe, returns a list of permutation idenfiers (as strings).
+    If there are no idenfiers, returns a list with an empty string.
 
     ----
     Parameters:
@@ -42,25 +42,27 @@ def get_permutation_numbers(df: pd.DataFrame) -> list[str]:
             DataFrame with "id" index level containing strings like:
                 "{current_name}@/{sport}/{country}/{name-year}/"
 
-                "{current_name}@/{sport}/{country}/{name-year}/@{num_permutation}"
+                "{current_name}@/{sport}/{country}/{name-year}/@{identifier}"
 
     -----
     Returns:
         list[str]:
-            List of permutation numbers.
+            List of permutation identifiers.
     """
 
-    unique_ids: pd.CategoricalIndex = df.index.get_level_values("id").unique()
+    unique_ids: pd.Index = df.index.get_level_values("id").unique()
 
-    pattern = r".+@.+@([0-9]+)"
+    pattern = r".+@.+@(.+)"
     all_permutation_numbers: pd.DataFrame = unique_ids.str.extract(pattern).fillna("")
 
     return list(np.unique(all_permutation_numbers.to_numpy().flatten()))
 
 
-def get_ith_permutation(df: pd.DataFrame, permutation: str) -> pd.DataFrame:
+def get_data_with_identifier(
+    df: pd.DataFrame, permutation_idenfier: str
+) -> pd.DataFrame:
     """
-    Get i-th permutation of a dataframe.
+    Get data corresponding to `permutation_id` from a dataframe.
     If permutation is an empty str, the entire dataframe will be returned instead.
 
     ----
@@ -69,20 +71,20 @@ def get_ith_permutation(df: pd.DataFrame, permutation: str) -> pd.DataFrame:
             DataFrame with "id" index level containing strings like:
                 "{current_name}@/{sport}/{country}/{name-year}/"
 
-                "{current_name}@/{sport}/{country}/{name-year}/@{num_permutation}"
+                "{current_name}@/{sport}/{country}/{name-year}/@{identifier}"
 
-        permutation: str
-            Permutation number
+        permutation_idenfier: str
+            Permutation identifier
 
     -----
     Returns:
         pd.DataFrame:
-            Filtered dataframe.
+            Filtered dataframe, that is, all entries with the desired identifier.
     """
-    if permutation == "":
+    if permutation_idenfier == "":
         return df
 
-    pattern = rf".+@.+@{permutation}"
+    pattern = rf".+@.+@{permutation_idenfier}"
     filtered_index = df.index.get_level_values("id").str.fullmatch(pattern)
 
     return df[filtered_index]

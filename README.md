@@ -137,21 +137,32 @@ Default values are in [`parameters.json`](https://github.com/EstefanoB/turning_p
     - As mentioned in [Paths Section](#paths), filename for a sport is `f"{sport}.csv"`
 - **should_<...>_it**
     - Boolen value
-    - If procedure should be run.
+    - Whether or not the code associated with that portion should be run.
 - **seed**
     - Integer
     - Seed which should be used for random events. 
 - **num_iteration_simulation** 
     - List with two integers
-    - Respectively, number of iterations and number of simulations for iterations.
+    - Respectively, number of iterations and number of simulations per iteration.
         - It is split into "batches" to avoid using too much RAM.
 - **num_permutations**
     - Integer
     - How many permutations should be created for each sport.
+- **types**
+    - In OPTIMAL_SCHEDULE["matches"]["parameters"]
+    - One of the values (strings) below, or a list of them.
+        - "tp_minimizer": schedule that minimizes the turning point
+            - Deterministic: In the first time two teams face each other, the best one will play as home-team.
+        - "tp_maximizer": schedule that maximizes the turning point
+            - Deterministic: In the first time two teams face each other, the worst one will play as home-team.
+        - "tp_minimizer_random": schedule that minimizes the turning point
+            - Non-Deterministic: In the first time two teams face each other, the home-team will be chosen randomly.
+        - "tp_maximizer_random": schedule that maximizes the turning point
+            - Non-Deterministic: In the first time two teams face each other, the home-team will be chosen randomly.
 
 ## **Licensing**
 ---
 
 This repository is licensed under the Apache License, Version 2.0. 
 
-See [LICENSE](https://github.com/EstefanoB/turning_point/blob/main/README.md) for the full license text.
+See [LICENSE](https://github.com/EstefanoB/turning_point/blob/main/LICENSE) for the full license text.

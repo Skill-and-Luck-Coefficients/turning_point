@@ -35,5 +35,27 @@
                 "num_iteration_simulation": [ 10, 100 ]
             }
         }
+    },
+    "OPTIMAL_SCHEDULE": {
+        "sports": [
+            "basketball",
+            "soccer",
+            "handball",
+            "volleyball"
+        ],
+        "matches": {
+            "should_create_it": true,
+            "seed": 3,
+            "parameters": {
+                "types": [ "tp_minimizer", "tp_maximizer" ]
+            }
+        },
+        "turning_point": {
+            "should_calculate_it": true,
+            "seed": 4,
+            "parameters": {
+                "num_iteration_simulation": [ 10, 100 ]
+            }
+        }
     }
 }

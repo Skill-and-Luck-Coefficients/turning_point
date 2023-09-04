@@ -76,3 +76,49 @@ def test_from_current_rankings(matches):
         ],
     )
     assert tn.from_current_rankings(matches).equals(expected)
+
+
+def test_extract_groups(matches: Matches):
+    expected = pd.Index(
+        [
+            "0@/sport/name/",
+            "0@/sport/name/",
+            "0@/sport/name/",
+            "0@/sport/name/",
+            "0@/sport/name/",
+            "0@/sport/name/",
+            "1@/sport/name/",
+            "1@/sport/name/",
+            "1@/sport/name/",
+            "1@/sport/name/",
+            "1@/sport/name/",
+            "1@/sport/name/",
+        ]
+    )
+
+    matches_index = matches.df.index.get_level_values("id")
+    no_year = tn._extract_groups(matches_index, r"(.+?@/.+?/.+?/).+")
+    assert no_year.equals(expected)
+
+
+def test_get_previous_ordering():
+    result = tn._get_previous_ordering(
+        pd.Series(index=["yesterday teams"], data=[["C", "B", "A"]], name="name"),
+        pd.Series(index=["name"], data=[["B", "C", "A"]]),
+    )
+    assert result == ["C", "B", "A"]
+
+    result = tn._get_previous_ordering(
+        pd.Series(index=["yesterday teams"], data=[["B", "A"]], name="name"),
+        pd.Series(index=["name"], data=[["B", "C", "A"]]),
+    )
+    assert result == ["B", "A", "C"]
+
+
+def test_from_previous_rankings(matches: Matches):
+    expected = pd.Series(
+        index=["0@/sport/name/year-1", "1@/sport/name/year-1"],
+        data=[["B", "A", "C"], ["b", "a", "c", "d"]],
+    )
+
+    assert tn.from_previous_rankings(matches).equals(expected)
