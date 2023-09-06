@@ -17,7 +17,7 @@ class PermutationTurningPoint(TurningPoint):
             pd.DataFrame[
                 index=[
                     id" -> pd.Categorical[str]
-                        "{current_name}@/{sport}/{country}/{name-year}@{num_permutation}"
+                        "{current_name}@/{sport}/{country}/{name-year}@{permutation_id}"
                 ],\n
                 columns=[
                     "turning point"  -> turning point (int),\n
@@ -25,8 +25,39 @@ class PermutationTurningPoint(TurningPoint):
             ]
     """
 
-    def statistical_measures(self, percentiles: list[float]) -> pd.DataFrame:
+    def unstack_permutation_id(self) -> pd.DataFrame:
+        """
+        Returns a dataframe in which each permutation_id has its own column for each id.
 
+        ----
+        Returns:
+            pd.DataFrame[
+                index=[
+                    id"    -> "{current_name}@/{sport}/{country}/{name-year}"
+                ],\n
+                columns=[  # multi level columns
+                    "turning point"  -> turning point\n
+                        "{1st permutation_id}"  -> turning point,\n
+                        "{2nd permutation_id}"  -> turning point,\n
+                        ...\n
+                        "{n-th permutation_id}" -> turning point,\n
+                    "%turning point"  -> turning point\n
+                        "{1st permutation_id}"  -> turning point,\n
+                        "{2nd permutation_id}"  -> turning point,\n
+                        ...\n
+                        "{n-th permutation_id}" -> turning point,\n
+            ]
+
+        """
+        # (.+?@.+?)@(.+)
+        #   tournament id: (greedy) first group
+        #   permutation id: second group
+        new_index_df = self.df.index.str.extract("(.+)@(.+)")
+        new_index = pd.MultiIndex.from_frame(new_index_df, names=["id", "type"])
+
+        return self.df.set_index(new_index).unstack("type")  # type: ignore
+
+    def statistical_measures(self, percentiles: list[float]) -> pd.DataFrame:
         """
         Calculate mean, standard deviation and percentiles.
         over all permutations.
@@ -55,6 +86,7 @@ class PermutationTurningPoint(TurningPoint):
                         "f{p}%" -> percentiles: p in 'percentiles'
             ]
         """
+
         # rename mapper function
         def _rename(id_: str) -> str:
             *original_id, _ = id_.split("@")

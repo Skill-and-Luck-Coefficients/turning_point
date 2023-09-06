@@ -11,17 +11,24 @@ class TurningPointMock:
 
 
 @dataclass
-class PermutationTurningPointMock:
+class PermutationStatsMock:
     statistical_measures_mock: pd.DataFrame
 
     def statistical_measures(self, percentiles: list[float]) -> pd.DataFrame:
         return self.statistical_measures_mock
 
 
-def test_comparison():
+@dataclass
+class PermutationOptimalMock:
+    optimal_mock: pd.DataFrame
 
+    def unstack_permutation_id(self) -> pd.DataFrame:
+        return self.optimal_mock
+
+
+def test_comparison():
     test = pc.TurningPointComparison(
-        normal=TurningPointMock(
+        normal=TurningPointMock(  # type: ignore
             pd.DataFrame(
                 {
                     "id": pd.Categorical(["1", "2"]),
@@ -30,7 +37,7 @@ def test_comparison():
                 }
             ).set_index("id")
         ),
-        permutation=PermutationTurningPointMock(
+        permutation=PermutationStatsMock(  # type: ignore
             pd.DataFrame(
                 {
                     ("id", ""): pd.Categorical(["1", "2"]),
@@ -47,6 +54,17 @@ def test_comparison():
                 }
             ).set_index("id")
         ),
+        optimal=PermutationOptimalMock(  # type: ignore
+            pd.DataFrame(
+                {
+                    ("id", ""): pd.Categorical(["1", "2"]),
+                    ("turning point", "minimizer"): [10, 20],
+                    ("turning point", "maximizer"): [1, 1],
+                    ("%turning point", "minimizer"): [0.5, 0.6],
+                    ("%turning point", "maximizer"): [0.1, 0.15],
+                }
+            ).set_index("id")
+        ),
     )
 
     expected = pd.DataFrame(
@@ -59,12 +77,16 @@ def test_comparison():
                 ("turning point", "2.5%"): [1, 2],
                 ("turning point", "50%"): [11, 21],
                 ("turning point", "97.5%"): [20, 35],
+                ("turning point", "minimizer"): [10, 20],
+                ("turning point", "maximizer"): [1, 1],
                 ("%turning point", "normal"): [0.35, 0.89],
                 ("%turning point", "mean"): [0.5, 0.6],
                 ("%turning point", "std"): [0.1, 0.15],
                 ("%turning point", "2.5%"): [0.05, 0.12],
                 ("%turning point", "50%"): [0.52, 0.61],
                 ("%turning point", "97.5%"): [0.85, 0.97],
+                ("%turning point", "minimizer"): [0.5, 0.6],
+                ("%turning point", "maximizer"): [0.1, 0.15],
             }
         ).set_index("id")
     )
