@@ -38,7 +38,7 @@ def matches():
 
 @pytest.fixture
 def rankings(matches: Matches):
-    ppm = PointsPerMatch.from_home_away_winner(matches.home_away_winner)
+    ppm = PointsPerMatch.from_home_away_winner(matches.home_away_winner())
     return ppm.rankings
 
 

@@ -9,10 +9,12 @@ OPTIMAL_MATCHES_PATH = DATA_PATH / "matches/optimal/"
 
 # Where to save coefficients and variances
 TURNING_POINT_PATH = DATA_PATH / "turning_point/real/"
+DIFF_POINTS_TURN_POINT_PATH = DATA_PATH / "turning_point/different_points/"
 PERMUTED_TURNING_POINT_PATH = DATA_PATH / "turning_point/permuted/"
 OPTIMAL_TURNING_POINT_PATH = DATA_PATH / "turning_point/optimal/"
 
 VARIANCE_STATS_PATH = DATA_PATH / "variance_stats/real/"
+DIFF_POINTS_VAR_STATS_PATH = DATA_PATH / "variance_stats/different_points/"
 PERMUTED_VARIANCE_STATS_PATH = DATA_PATH / "variance_stats/permuted/"
 OPTIMAL_VARIANCE_STATS_PATH = DATA_PATH / "variance_stats/optimal/"
 

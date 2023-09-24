@@ -148,6 +148,12 @@ Default values are in [`parameters.json`](https://github.com/EstefanoB/turning_p
 - **num_permutations**
     - Integer
     - How many permutations should be created for each sport.
+- **winner_type**
+    - Literal["winner", "result"]
+    - Whether points should be based off of the winner or the result
+- **winner_to_points**
+    - Mapping[str, tuple[float, float]]
+    - Maps the winner (or result if winner_type is "result") to the points home and away teams gained after the match (respectively).
 - **types**
     - In OPTIMAL_SCHEDULE["matches"]["parameters"]
     - One of the values (strings) below, or a list of them.

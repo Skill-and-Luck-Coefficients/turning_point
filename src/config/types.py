@@ -1,4 +1,4 @@
-from typing import Literal, TypedDict
+from typing import Literal, Mapping, TypedDict
 
 Sports = list[str]
 OptimalScheduleTypes = Literal[
@@ -29,9 +29,13 @@ class PermutedMatches(TypedDict):
 class TurningPointParameters(TypedDict):
     """
     num_iteration_simulation: list[int]
+    winner_type = Literal["winner", "result"]
+    winner_to_points = Mapping[str, tuple[float, float]]
     """
 
     num_iteration_simulation: list[int]
+    winner_type: Literal["winner", "result"]
+    winner_to_points: Mapping[str, tuple[float, float]]
 
 
 class TurningPointConfig(TypedDict):
@@ -109,3 +113,4 @@ class ConfigurationType(TypedDict):
     REAL_MATCHES: RealConfig
     PERMUTED_MATCHES: PermutedConfig
     OPTIMAL_SCHEDULE: OptimalConfig
+    DIFFERENT_POINT_SYSTEM: RealConfig

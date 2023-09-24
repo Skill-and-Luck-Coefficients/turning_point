@@ -10,7 +10,9 @@
             "should_calculate_it": true,
             "seed": 0,
             "parameters": {
-                "num_iteration_simulation": [ 10, 100 ]
+                "num_iteration_simulation": [ 10, 100 ],
+                "winner_type": "winner",
+                "winner_to_points": { "h": [ 3, 0 ], "d": [ 1, 1 ], "a": [ 0, 3 ] }
             }
         }
     },
@@ -55,6 +57,25 @@
             "seed": 4,
             "parameters": {
                 "num_iteration_simulation": [ 10, 100 ]
+            }
+        }
+    },
+    "DIFFERENT_POINT_SYSTEM": {
+        "sports": [
+            "volleyball"
+        ],
+        "turning_point": {
+            "should_calculate_it": true,
+            "seed": 5,
+            "parameters": {
+                "num_iteration_simulation": [ 10, 100 ],
+                "winner_type": "result",
+                "winner_to_points": {
+                    "3:0": [ 3, 0 ], "3:0 AWA.": [ 3, 0 ], "3:0 WO.": [ 3, 0 ], "3:1": [ 3, 0 ], "3:1 CAN.": [ 3, 0 ],
+                    "3:2": [ 2, 1 ],
+                    "2:3": [ 1, 2 ],
+                    "1:3": [ 0, 3 ], "0:3": [ 0, 3 ], "0:3 AWA.": [ 0, 3 ], "0:3 WO.": [ 0, 3 ]
+                }
             }
         }
     }

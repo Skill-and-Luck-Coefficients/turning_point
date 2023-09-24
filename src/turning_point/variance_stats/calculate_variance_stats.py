@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Mapping
 
 import pandas as pd
 
@@ -40,6 +40,8 @@ def get_kwargs_from_variances(variances: Variances) -> KwargsSVS:
 def get_kwargs_from_matches(
     matches: Matches,
     num_iteration_simulation: tuple[int, int],
+    winner_type: Literal["winner", "result"],
+    winner_to_points: Mapping[str, tuple[float, float]],
     id_to_probabilities: pd.Series | None = None,
 ) -> KwargsSVS:
     """
@@ -58,10 +60,25 @@ def get_kwargs_from_matches(
         id_to_probabilities: pd.Series | None = None
             Series mapping each tournament to its estimated probabilities.
 
-            Probabilities: (prob home win, prob draw, prob away win).
+            Probabilities:  Mapping[tuple[float, float]: float]
+                Maps each pair (tuple) to its probability (float).
+
+                Pair: ranking points gained respectively by home-team and away-team.
 
             If None, they will be estimated directly from 'matches'.
 
+        winner_type: Literal["winner", "result"]
+            What should points be based on.
+                match: winner of the match
+                    home: "h"
+                    draw: "d"
+                    away: "a"
+                result: result of match: f{score home team}-{score away team}"
+
+        winner_to_points: Mapping[str, tuple[float, float]]
+            Mapping winner/result to how many points each team should gain.
+
+            First tuple result is for home-team, while the second one is for away-team.
     ----
     Returns:
 
@@ -69,7 +86,10 @@ def get_kwargs_from_matches(
             "df": DataFrame with real ranking-variance and mean/0.950-quantile
                   for ranking-variances in simulations.
     """
-    ppm = PointsPerMatch.from_home_away_winner(matches.home_away_winner)
+    ppm = PointsPerMatch.from_home_away_winner(
+        home_away_winner=matches.home_away_winner(winner_type),
+        result_to_points=winner_to_points,
+    )
 
     if id_to_probabilities is not None:
         desired_ids = ppm.df.index.get_level_values("id").unique().sort_values()

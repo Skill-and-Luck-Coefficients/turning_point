@@ -80,7 +80,10 @@ class Variances:
             id_to_probabilities: pd.Series | None = None
                 Series mapping each tournament to its estimated probabilities.
 
-                Probabilities: (prob home win, prob draw, prob away win).
+                Probabilities:  Mapping[tuple[float, float]: float]
+                    Maps each pair (tuple) to its probability (float).
+
+                    Pair: ranking points gained respectively by home-team and away-team.
 
                 If None, they will be estimated directly from 'ppm'.
         """

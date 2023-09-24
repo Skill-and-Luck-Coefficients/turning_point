@@ -16,7 +16,7 @@ def from_current_rankings(matches: Matches) -> pd.Series:
     """
     For each id, get teams sorted by its final ranking.
     """
-    rankings = PointsPerMatch.from_home_away_winner(matches.home_away_winner).rankings
+    rankings = PointsPerMatch.from_home_away_winner(matches.home_away_winner()).rankings
 
     by = ["id", "points", "team"]
     sorted_rankings = rankings.sort_values(by, ascending=[True, False, True])

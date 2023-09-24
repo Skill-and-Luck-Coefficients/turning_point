@@ -7,7 +7,7 @@ import pandas as pd
 import turning_point.permutation_coefficient as pc
 import turning_point.variance_stats as vs
 from logs import log, turning_logger
-from tournament_simulations.data_structures import Matches
+from tournament_simulations.data_structures import Matches, PointsPerMatch
 
 from .. import types
 
@@ -19,6 +19,8 @@ def _get_variance_stats(matches: Matches, **kwargs) -> vs.ExpandingVarStats:
     For permutation matches it calculates stats for each permutation
     separately to reduce memory usage.
     """
+    winner_to_points = {k: tuple(v) for k, v in kwargs["winner_to_points"].items()}
+    point_pairs = sorted(set(winner_to_points.values()))
 
     all_var_stats: list[pd.DataFrame] = []
     permutation_ids = pc.get_permutation_identifiers(matches.df)
@@ -27,10 +29,18 @@ def _get_variance_stats(matches: Matches, **kwargs) -> vs.ExpandingVarStats:
         turning_logger.info(f"Starting i-th permutation: {perm_id}")
 
         filtered_matches = Matches(pc.get_data_with_identifier(matches.df, perm_id))
+
+        # TODO: Remove this redundant calculation?
+        filtered_ppm = PointsPerMatch.from_home_away_winner(
+            home_away_winner=filtered_matches.home_away_winner(kwargs["winner_type"]),
+            result_to_points=winner_to_points,
+        )
         var_stats = vs.ExpandingVarStats.from_matches(
             filtered_matches,
-            id_to_probabilities=filtered_matches.probabilities_per_id,
-            **kwargs,
+            num_iteration_simulation=kwargs["num_iteration_simulation"],
+            winner_type=kwargs["winner_type"],
+            winner_to_points=winner_to_points,
+            id_to_probabilities=filtered_ppm.probabilities_per_id(point_pairs),
         )
 
         all_var_stats.append(var_stats.df)

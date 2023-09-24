@@ -164,8 +164,20 @@ def test_get_kwargs_from_matches():
         }
     ).set_index("id")
 
-    assert vst.get_kwargs_from_matches(test, (2, 3))["df"].equals(expected)
-    assert vst.get_kwargs_from_matches(test, (3, 2))["df"].equals(expected)
+    result = vst.get_kwargs_from_matches(
+        test,
+        num_iteration_simulation=(2, 3),
+        winner_type="winner",
+        winner_to_points={"h": (3, 0), "d": (1, 1), "a": (0, 3)},
+    )
+    assert result["df"].equals(expected)
+    result = vst.get_kwargs_from_matches(
+        test,
+        num_iteration_simulation=(3, 2),
+        winner_type="winner",
+        winner_to_points={"h": (3, 0), "d": (1, 1), "a": (0, 3)},
+    )
+    assert result["df"].equals(expected)
 
 
 def test_get_kwargs_from_matches_bigger_in_to_probabilities():
@@ -177,9 +189,16 @@ def test_get_kwargs_from_matches_bigger_in_to_probabilities():
         "winner": ["a", "a", "d", "d", "d"],
     }
     test = Matches(pd.DataFrame(test_cols).set_index(["id", "date number"]))
-    id_to_prob = pd.Series(
+
+    id_to_prob = pd.Series(  # only ids "1" and "2" exist in matches
         index=["0", "1", "2", "3", "4"],
-        data=[(0, 1, 0), (0, 0, 1), (0, 1, 0), (0.5, 0.5, 0), (0.33, 0.33, 0.34)],
+        data=[
+            {(3, 0): 0, (1, 1): 1, (0, 3): 0},
+            {(3, 0): 0, (1, 1): 0, (0, 3): 1},
+            {(3, 0): 0, (1, 1): 1, (0, 3): 0},
+            {(3, 0): 0.5, (1, 1): 0.5, (0, 3): 0},
+            {(3, 0): 0.33, (1, 1): 0.33, (0, 3): 0.34},
+        ],
     )
 
     first_id_vars = [
@@ -209,5 +228,85 @@ def test_get_kwargs_from_matches_bigger_in_to_probabilities():
         }
     ).set_index("id")
 
-    assert vst.get_kwargs_from_matches(test, (2, 3), id_to_prob)["df"].equals(expected)
-    assert vst.get_kwargs_from_matches(test, (3, 2), id_to_prob)["df"].equals(expected)
+    result = vst.get_kwargs_from_matches(
+        test,
+        num_iteration_simulation=(2, 3),
+        winner_type="winner",
+        winner_to_points={"h": (3, 0), "d": (1, 1), "a": (0, 3)},
+        id_to_probabilities=id_to_prob,
+    )
+    assert result["df"].equals(expected)
+    result = vst.get_kwargs_from_matches(
+        test,
+        num_iteration_simulation=(3, 2),
+        winner_type="winner",
+        winner_to_points={"h": (3, 0), "d": (1, 1), "a": (0, 3)},
+        id_to_probabilities=id_to_prob,
+    )
+    assert result["df"].equals(expected)
+
+
+def test_get_kwargs_from_matches_bigger_in_to_probabilities_new_points():
+    test_cols = {
+        "id": pd.Categorical(["1", "1", "2", "2", "2"]),
+        "date number": [0, 0, 0, 0, 0],
+        "home": pd.Categorical(["A", "A", "a", "b", "a"]),
+        "away": pd.Categorical(["B", "B", "b", "c", "d"]),
+        "winner": ["a", "a", "d", "d", "d"],
+    }
+    test = Matches(pd.DataFrame(test_cols).set_index(["id", "date number"]))
+
+    id_to_prob = pd.Series(  # only ids "1" and "2" exist in matches
+        index=["0", "1", "2", "3", "4"],
+        data=[
+            {(3, 0): 0, (1, 1): 1, (0, 3): 0},
+            {(2, 1): 0, (0, 0): 0, (1, 2): 1},
+            {(2, 1): 0, (0, 0): 1, (1, 2): 0},
+            {(3, 0): 0.5, (1, 1): 0.5, (0, 3): 0},
+            {(3, 0): 0.33, (1, 1): 0.33, (0, 3): 0.34},
+        ],
+    )
+
+    first_id_vars = [
+        np.var([2, 4], ddof=1),
+        np.var([2, 4], ddof=1),
+        np.var([2, 4], ddof=1),
+        np.var([2, 4], ddof=1),
+        np.var([2, 4], ddof=1),
+        np.var([2, 4], ddof=1),
+    ]
+
+    second_id_vars = [
+        np.var([0, 0, 0, 0], ddof=1),
+        np.var([0, 0, 0, 0], ddof=1),
+        np.var([0, 0, 0, 0], ddof=1),
+        np.var([0, 0, 0, 0], ddof=1),
+        np.var([0, 0, 0, 0], ddof=1),
+        np.var([0, 0, 0, 0], ddof=1),
+    ]
+
+    expected = pd.DataFrame(
+        {
+            "id": pd.Categorical(["1", "2"]),
+            "real var": [np.var([2, 4], ddof=1), np.var([0, 0, 0, 0], ddof=1)],
+            "mean": [mean(*first_id_vars), mean(*second_id_vars)],
+            "0.950-quantile": [nfp(*first_id_vars), nfp(*second_id_vars)],
+        }
+    ).set_index("id")
+
+    result = vst.get_kwargs_from_matches(
+        test,
+        num_iteration_simulation=(2, 3),
+        winner_type="winner",
+        winner_to_points={"h": (2, 1), "d": (0, 0), "a": (1, 2)},
+        id_to_probabilities=id_to_prob,
+    )
+    assert result["df"].equals(expected)
+    result = vst.get_kwargs_from_matches(
+        test,
+        num_iteration_simulation=(3, 2),
+        winner_type="winner",
+        winner_to_points={"h": (2, 1), "d": (0, 0), "a": (1, 2)},
+        id_to_probabilities=id_to_prob,
+    )
+    assert result["df"].equals(expected)
