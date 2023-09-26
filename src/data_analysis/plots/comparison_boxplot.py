@@ -1,20 +1,9 @@
 from enum import Enum
 from typing import Literal
 
-import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from matplotlib.axes import Axes
-
-BOXPLOT_THEME = {
-    "context": "talk",
-    "font_scale": 1.05,
-    "rc": {
-        "figure.figsize": (14, 8),
-        "legend.fontsize": 12,
-        "xtick.labelsize": 14,
-    },
-}
 
 # col names to desired name
 HUE_COLUMNS: dict[tuple[str, str], str] = {
