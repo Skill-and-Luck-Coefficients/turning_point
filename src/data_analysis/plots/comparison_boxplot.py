@@ -1,6 +1,10 @@
+from enum import Enum
+from typing import Literal
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+from matplotlib.axes import Axes
 
 BOXPLOT_THEME = {
     "context": "talk",
@@ -12,50 +16,83 @@ BOXPLOT_THEME = {
     },
 }
 
+# col names to desired name
+HUE_COLUMNS: dict[tuple[str, str], str] = {
+    ("%turning point", "normal"): "Normal",
+    ("%turning point", "mean"): "Permuted",
+}
+
+
+class BoxplotDFCols(Enum):
+    x = "x"
+    value = "value"
+    hue = "hue"
+
+
+def _add_hue_column(
+    df: pd.DataFrame, hue_columns: dict[str, str] | dict[tuple[str], str]
+) -> pd.DataFrame:
+    all_dfs: list[pd.DataFrame] = []
+
+    for col_name, label in hue_columns.items():
+        tp_df = pd.DataFrame()
+        tp_df[BoxplotDFCols.value] = df[col_name]
+        tp_df[BoxplotDFCols.hue] = label
+
+        all_dfs.append(tp_df)
+
+    return pd.concat(all_dfs)
+
 
 def _create_boxplot_df(
-    sport_to_tp_comparison: dict[str, pd.DataFrame], column: str
+    sport_to_tp_comparison: dict[str, pd.DataFrame],
+    x_column: Literal["sport"] | None,
+    hue_columns: dict[str, str] | dict[tuple[str], str],
 ) -> pd.DataFrame:
-
-    TITLES = ["Normal", "Permuted"]
-    SECOND_LEVEL_COLUMNS = ["normal", "mean"]
-
     turning_points_all_sports: list[pd.DataFrame] = []
 
     for sport, comparison in sport_to_tp_comparison.items():
+        comparison = _add_hue_column(comparison, hue_columns)
 
-        col_comparison: pd.DataFrame = comparison[column]
+        if x_column is not None:
+            comparison[BoxplotDFCols.x] = sport.title()
 
-        comparison = col_comparison[SECOND_LEVEL_COLUMNS].set_axis(
-            TITLES, axis="columns"
-        )
+        turning_points_all_sports.append(comparison)
 
-        for title in TITLES:
-
-            tp_df: pd.DataFrame = comparison[[title]].copy()
-            tp_df[column] = comparison[title]
-            tp_df["Normal/Permuted"] = title
-            tp_df["Sport"] = sport.title()
-
-            turning_points_all_sports.append(tp_df)
-
-    return pd.concat(turning_points_all_sports).drop(TITLES, axis="columns")
+    return pd.concat(turning_points_all_sports)
 
 
 def plot_comparison_boxplot(
-    sport_to_tp_comparison: dict[str, pd.DataFrame],
-    column: str = "%turning point",
-) -> None:
+    ax: Axes,
+    sport_to_df: dict[str, pd.DataFrame],
+    x_column: Literal["sport"] | None = "sport",
+    hue_columns: dict[str, str] | dict[tuple[str], str] = HUE_COLUMNS,
+    legend: bool = True,
+):
+    """
+    hue_columns:
+        Maps turning points column name to the name it should be called in the plot.
 
-    boxplot_df = _create_boxplot_df(sport_to_tp_comparison, column)
+        Notice that, since this is a comparasion, there should be two key/values pairs.
+    """
+    boxplot_df = _create_boxplot_df(
+        sport_to_df,
+        x_column,
+        hue_columns,
+    )
 
-    with sns.plotting_context(**BOXPLOT_THEME):
+    # with sns.plotting_context(**BOXPLOT_THEME):
+    sns.boxplot(
+        data=boxplot_df,
+        y=BoxplotDFCols.value,
+        x=BoxplotDFCols.x if x_column is not None else None,
+        hue=BoxplotDFCols.hue,
+        ax=ax,
+    )
 
-        _, ax = plt.subplots()
-
-        sns.boxplot(
-            data=boxplot_df, y="%turning point", x="Sport", hue="Normal/Permuted", ax=ax
-        )
-        ax.set_title("%Date")
-        ax.set_ylabel("")
+    ax.set_xlabel("")
+    ax.set_ylabel("")
+    if legend:
         ax.legend(title="")
+    else:
+        ax.legend().remove()

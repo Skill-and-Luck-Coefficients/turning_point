@@ -1,26 +1,14 @@
 import pandas as pd
 import seaborn as sns
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 
 from logs import turning_logger
 from turning_point.match_coefficient import MatchTurningPoint
 from turning_point.normal_coefficient import TurningPoint
 
-COLUMN_TO_TYPE = {
-    "turning point": "Dates",
-    "%turning point": "%Dates",
-    "match turning point": "Matches",
-    "%match turning point": "%Matches",
-}
-
-BOXPLOT_THEME = {
-    "context": "talk",
-    "font_scale": 1.05,
-    "rc": {"figure.figsize": (14, 6), "legend.fontsize": 15.6},
-}
-
 
 def _log_invalid_values(tp: pd.DataFrame, not_na_tp: pd.DataFrame):
-
     all_index: set[str] = set(tp.index.get_level_values("id"))
     not_na_index: set[str] = set(not_na_tp.index.get_level_values("id"))
 
@@ -31,72 +19,47 @@ def _log_invalid_values(tp: pd.DataFrame, not_na_tp: pd.DataFrame):
 
 
 def _concatenate_turning_points_into_one_df(
-    sport_to_tp: dict[str, TurningPoint],
-    sport_to_mtp: dict[str, MatchTurningPoint],
-    mtp_tp_column_to_use: tuple[str, str],
-    column_to_type: dict[str, str],
+    sport_to_tp: dict[str, TurningPoint] | dict[str, MatchTurningPoint],
+    tp_column: str,
 ) -> pd.DataFrame:
-
-    mtp_col, tp_col = mtp_tp_column_to_use
-
     all_sports_tps = []
 
-    for sport in sport_to_tp:
+    for sport, tp in sport_to_tp.items():
+        tp_df = tp.df[[tp_column]]
 
-        mtp_tp_copies = (
-            sport_to_mtp[sport].df.rename(columns={mtp_col: tp_col}),
-            sport_to_tp[sport].df,
-        )
+        with pd.option_context("mode.use_inf_as_na", True):
+            not_na_tp = tp_df.dropna().copy()
+            _log_invalid_values(tp_df, not_na_tp)
 
-        for tp, tp_column in zip(mtp_tp_copies, mtp_tp_column_to_use):
+        not_na_tp["sport"] = sport.title()
 
-            with pd.option_context("mode.use_inf_as_na", True):
+        # "%seasons" is used as xlabel for boxplot
+        percent_with_tp = len(not_na_tp) / len(tp_df)
+        not_na_tp["%Seasons"] = f"{percent_with_tp:.1%}"
 
-                not_na_tp = tp.dropna().copy()
-                _log_invalid_values(tp, not_na_tp)
-
-            not_na_tp["sport"] = sport.title()
-
-            # "data type" is used to divide seaborn box-plot into two axes
-            not_na_tp["data type"] = column_to_type[tp_column]
-
-            # "%seasons" is used as xlabel for boxplot
-            percent_with_tp = len(not_na_tp) / len(tp)
-            not_na_tp["%Seasons"] = f"{percent_with_tp:.1%}"
-
-            all_sports_tps.append(not_na_tp)
+        all_sports_tps.append(not_na_tp)
 
     return pd.concat(all_sports_tps)
 
 
 def plot_boxplot_turning_points(
+    axs: list[Axes],
     sport_to_tp: dict[str, TurningPoint],
     sport_to_mtp: dict[str, MatchTurningPoint],
-    mtp_tp_column_to_use: tuple[str, str],
-) -> None:
+    mtp_tp_column_to_use: dict[str, str],
+):
+    mtp_col, tp_col = mtp_tp_column_to_use.keys()
+    mtp_title, tp_title = mtp_tp_column_to_use.values()
 
-    _, tp_col = mtp_tp_column_to_use
+    ax = axs[0]
+    df = _concatenate_turning_points_into_one_df(sport_to_mtp, mtp_col)
+    sns.boxplot(df, y=mtp_col, x="%Seasons", hue="sport", dodge=False, ax=ax)
+    ax.set_ylabel("")
+    ax.set_title(mtp_title.title())
+    ax.legend(title="", fontsize=25)
 
-    turning_points_boxplot = _concatenate_turning_points_into_one_df(
-        sport_to_tp, sport_to_mtp, mtp_tp_column_to_use, COLUMN_TO_TYPE
-    )
-
-    with sns.plotting_context(**BOXPLOT_THEME):
-
-        axs: sns.FacetGrid = sns.catplot(
-            data=turning_points_boxplot,
-            x="%Seasons",
-            y=tp_col,
-            col="data type",
-            hue="sport",
-            kind="box",
-            sharey=False,
-            dodge=False,
-            legend_out=False,
-        )
-
-        # axs.set_xlabels(labelpad=13)
-        axs.set_ylabels("")
-        axs.set_titles("{col_name}")
-
-        axs.add_legend(title="")
+    ax = axs[1]
+    df = _concatenate_turning_points_into_one_df(sport_to_tp, tp_col)
+    sns.boxplot(df, y=tp_col, x="%Seasons", dodge=False, ax=ax)
+    ax.set_ylabel("")
+    ax.set_title(tp_title.title())
