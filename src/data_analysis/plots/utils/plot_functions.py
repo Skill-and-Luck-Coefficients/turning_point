@@ -107,7 +107,7 @@ def get_center_x_value(ax: Axes) -> float:
 
 def plot_x_equals_y_line(ax: Axes, x: Sequence[float], y: Sequence[float]):
     ax_lim = (min(min(x), min(y)), max(max(x), max(y)))
-    ax.plot(ax_lim, ax_lim, color="black", alpha=0.75)
+    ax.plot(ax_lim, ax_lim, color="black", alpha=0.3)
 
 
 def create_discrete_cmap_norm(
