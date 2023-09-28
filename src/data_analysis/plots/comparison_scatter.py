@@ -10,16 +10,16 @@ TP_COLUMNS: dict[tuple[str, str], str] = {
     ("%turning point", "mean"): "Permutation (mean)",
 }
 
-INTERVAL_COLOR_MARKER_LABELS = {
-    0: ("black", "*", None),
-    -1: ("red", "o", r"Real $\leq$ 2.5%"),
-    1: ("darkblue", "s", r"Real $\geq$ 97.5%"),
+INTERVAL_PLOT_PARAMERS = {  # COLOR, MARKER, SIZE, LABEL
+    0: ("black", "*", 50, None),
+    -1: ("red", "o", 100, r"Real $\leq$ 2.5%"),
+    1: ("blue", "s", 100, r"Real $\geq$ 97.5%"),
 }
 
-ABOVE_BELOW_COLOR_MARKER_LABELS = {
-    0: ("black", "s", r"|x - y| $\leq$ "),
-    -1: ("red", "o", " y - x  > "),
-    1: ("darkblue", "*", " x - y  > "),
+ABOVE_BELOW_PLOT_PARAMERS = {  # COLOR, MARKER, SIZE LABEL
+    0: ("black", "s", 100, r"|x - y| $\leq$ "),
+    -1: ("red", "o", 100, " y - x  > "),
+    1: ("blue", "*", 150, " x - y  > "),
 }
 
 PEARSON_KWARGS = {
@@ -52,7 +52,7 @@ def _plot_colors_above_below_x_equals_x(
 ):
     inside_margin = np.abs(x - y) <= no_diff_margin
     diff = np.where(inside_margin, 0, np.sign(x - y))
-    for diff_value, (color, marker, label) in ABOVE_BELOW_COLOR_MARKER_LABELS.items():
+    for diff_value, (color, marker, size, label) in ABOVE_BELOW_PLOT_PARAMERS.items():
         color_index = diff == diff_value
         ax.scatter(
             x=x[color_index],
@@ -61,7 +61,7 @@ def _plot_colors_above_below_x_equals_x(
             marker=marker,
             label=f"{label}{no_diff_margin:.2f}",
             alpha=0.25,
-            s=100,
+            s=size,
         )
 
 
@@ -74,7 +74,7 @@ def _plot_colors_outside_interval(
     above = (upper_limit <= x).astype(int)  # above: 1
     below_or_above = below + above  # below: -1, inside: 0, above: 1
 
-    for key, (color, marker, label) in INTERVAL_COLOR_MARKER_LABELS.items():
+    for key, (color, marker, size, label) in INTERVAL_PLOT_PARAMERS.items():
         color_index = below_or_above == key
         ax.scatter(
             x=x[color_index],
@@ -83,7 +83,7 @@ def _plot_colors_outside_interval(
             marker=marker,
             label=label,
             alpha=0.25,
-            s=100,
+            s=size,
         )
 
 
