@@ -1,7 +1,6 @@
 import pandas as pd
 import seaborn as sns
 from matplotlib.axes import Axes
-from matplotlib.figure import Figure
 
 from logs import turning_logger
 from turning_point.match_coefficient import MatchTurningPoint

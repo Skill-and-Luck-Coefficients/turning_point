@@ -35,5 +35,3 @@ def plot_new_pontuation_system(
     ax.set_title("")
     ax.set_yticks([0.25, 0.5, 0.75])
     ax.set_xticks([-0.20, 0.20], ["3-2 score\nh: 3, a: 0", "3-2 score\nh: 2, a: 1"])
-
-    fig.subplots_adjust(top=0.87, wspace=0.19)

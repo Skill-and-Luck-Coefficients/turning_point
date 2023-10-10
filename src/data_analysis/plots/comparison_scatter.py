@@ -140,7 +140,3 @@ def plot_comparison_scatter(
     label_x, label_y = tp_columns.values()
     pf.add_xlabels_nth_row(fig, axs, label_x, n=-1)
     pf.add_ylabels_to_nth_col(fig, axs, label_y, n=0)
-
-    fig.subplots_adjust(
-        left=0.11, bottom=0.11, right=0.955, top=0.94, wspace=0.1, hspace=0.14
-    )

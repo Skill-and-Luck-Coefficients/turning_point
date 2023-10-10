@@ -95,7 +95,3 @@ def plot_variances_temporal_progression(
     pf.add_ylabels_to_nth_col(fig, axs, "Variances", n=0)
 
     pf.add_legend_from_color_maker_labels(flat_axs[0], COLOR_MARKER_LABEL.values())
-
-    fig.subplots_adjust(
-        left=0.11, bottom=0.11, right=0.955, top=0.94, wspace=0.17, hspace=0.31
-    )

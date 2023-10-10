@@ -3,10 +3,10 @@ flake8==4.0.1
 isort==5.9.3
 numpy==1.23.5
 pandas==1.4.4
-matplotlib==3.5.2
+matplotlib==3.7.3
 pytest==7.1.2
 scipy==1.9.1
-seaborn==0.11.2
+seaborn==0.12.2
 jupyter_core==5.1.1
 jupyterlab==3.5.3
 notebook==6.5.2

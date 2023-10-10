@@ -1,11 +1,5 @@
 from seaborn import set_theme
 
-# NOTE:
-# newer versions o matplotlib should have an option called
-# constrained_layout but when I wrote this, it was still experimental.
-# Thus, subplot parameters are hardcoded with fig.subplots_adjust
-# for each graph separately
-
 # matplotlib.rcParams.keys() gives all options
 MATPLOTLIB_RC = {
     "axes.titlesize": 35,
@@ -25,6 +19,7 @@ MATPLOTLIB_RC = {
     "xtick.major.size": 0,
     "ytick.labelsize": 30,
     "ytick.major.size": 0,
+    "figure.constrained_layout.use": True,
 }
 
 set_theme(
