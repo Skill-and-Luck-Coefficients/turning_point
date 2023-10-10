@@ -17,7 +17,7 @@ def get_optimal_comparison(
         for sport, comparison in sport_to_comparison.items():
             tps = comparison[tp_column]
 
-            one_sport = pd.Series(name=sport)
+            one_sport = pd.Series(name=sport, dtype="float64")
             one_sport["< 2.5%"] = (tps[optimal_col] < tps["2.5%"]).mean()
             one_sport["< real"] = (tps[optimal_col] < tps["normal"]).mean()
             one_sport["> real"] = (tps[optimal_col] > tps["normal"]).mean()
