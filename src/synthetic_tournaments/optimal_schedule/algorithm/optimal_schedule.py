@@ -1,7 +1,7 @@
 from itertools import zip_longest
 from typing import Any, Sequence
 
-from .utils import Round, split_in_middle, sum_sequence_values
+from .utils import Round, split_in_middle
 
 
 def generate_optimal_schedule_between_groups(
@@ -15,24 +15,25 @@ def generate_optimal_schedule_between_groups(
 
     ----
     Example:
-        group_one_teams: [0, 1, 2]
-        group_two_teams: [3, 4, 5]
+        group_one_teams: [0, 1, 2] -> Good teams
+        group_two_teams: [3, 4, 5] -> Bad teams
 
         Result:
             [
                 ((0, 5), (1, 4), (2, 3)),
-                ((2, 5), (0, 4), (1, 3)),
-                ((1, 5), (2, 4), (0, 3)),
+                ((0, 4), (1, 3), (2, 5)),
+                ((0, 3), (1, 5), (2, 4)),
             ]
     """
     if not group_one_teams or not group_two_teams:
         return []
 
-    largest = sorted(group_one_teams, reverse=False)
-    smallest = sorted(group_two_teams, reverse=True)
-    if len(group_one_teams) < len(group_two_teams):
+    smallest = sorted(group_one_teams)
+    largest = sorted(group_two_teams)
+    if len(largest) < len(smallest):
         largest, smallest = smallest, largest
 
+    largest = list(reversed(largest))
     initial_largest = largest.copy()
 
     schedule: list[Round] = []
@@ -44,8 +45,8 @@ def generate_optimal_schedule_between_groups(
         matches_as_tuples = map(tuple, lower_number_first)
         schedule.append(tuple(matches_as_tuples))
 
-        # need to rotate the largest, otherwise some matches may be skipped
-        largest.insert(0, largest.pop())
+        # need to left rotate the largest, otherwise some matches may be skipped
+        largest.append(largest.pop(0))
 
         if initial_largest == largest:
             break
@@ -58,7 +59,7 @@ def generate_optimal_schedule(
 ) -> list[Round]:
     """
     Given a list of teams, schedule an entire tournament by splitting
-    the list in half and applying `generate_schedule_half_split`.
+    the list in half and applying `generate_optimal_schedule_between_groups`.
 
     ----
     Parameters:
@@ -74,33 +75,29 @@ def generate_optimal_schedule(
         Result:
             [
                 ((0, 5), (1, 4), (2, 3)),
-                ((2, 5), (0, 4), (1, 3)),
-                ((1, 5), (2, 4), (0, 3)),
+                ((0, 4), (1, 3), (2, 5)),
+                ((0, 3), (1, 5), (2, 4)),
                 ((0, 2), (3, 5)),
+                ((0, 1), (3, 4)),
                 ((1, 2), (4, 5)),
             ]
     """
     if isinstance(teams, int):
         teams = list(range(teams))
 
-    teams = sorted(teams)
-    num_teams = len(teams)
-
-    if num_teams <= 1:
+    if len(teams) <= 1:
         return [tuple()]
 
+    teams = sorted(teams)
     first_half, second_half = split_in_middle(teams)
 
     schedule: list[Round] = []
     schedule.extend(generate_optimal_schedule_between_groups(first_half, second_half))
 
-    first_half_schedule = generate_optimal_schedule(first_half)
-    second_half_schedule = generate_optimal_schedule(second_half)
-    both_halves_schedule = [first_half_schedule, second_half_schedule]
-    first_and_second: list[Round] = [
-        sum_sequence_values(first_second)  # type: ignore
-        for first_second in zip_longest(*both_halves_schedule, fillvalue=tuple())
-    ]
-    schedule.extend(first_and_second)
+    first_half_rounds = generate_optimal_schedule(first_half)
+    second_half_rounds = generate_optimal_schedule(second_half)
+    both_halves = zip_longest(first_half_rounds, second_half_rounds, fillvalue=tuple())
+    joined_on_rounds: list[Round] = [first + second for first, second in both_halves]
+    schedule.extend(joined_on_rounds)
 
-    return [matches for matches in schedule if matches]
+    return [matches for matches in schedule if matches]  # Remove empty entries
