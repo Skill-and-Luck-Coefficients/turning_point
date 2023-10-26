@@ -27,14 +27,16 @@
             "should_create_it": true,
             "seed": 1,
             "parameters": {
-                "num_permutations": 30
+                "num_permutations": 100
             }
         },
         "turning_point": {
             "should_calculate_it": true,
             "seed": 2,
             "parameters": {
-                "num_iteration_simulation": [ 10, 100 ]
+                "num_iteration_simulation": [ 10, 100 ],
+                "winner_type": "winner",
+                "winner_to_points": { "h": [ 3, 0 ], "d": [ 1, 1 ], "a": [ 0, 3 ] }
             }
         }
     },
@@ -56,7 +58,9 @@
             "should_calculate_it": true,
             "seed": 4,
             "parameters": {
-                "num_iteration_simulation": [ 10, 100 ]
+                "num_iteration_simulation": [ 10, 100 ],
+                "winner_type": "winner",
+                "winner_to_points": { "h": [ 3, 0 ], "d": [ 1, 1 ], "a": [ 0, 3 ] }
             }
         }
     },
