@@ -1,5 +1,8 @@
+from typing import Any, Literal
+
 import numpy as np
 import pandas as pd
+import seaborn as sns
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
@@ -38,7 +41,7 @@ TEXT_TITLE_KWARGS = {
 }
 
 
-def _get_tp_column(tp_columns: dict[str, str] | dict[tuple[str], str]) -> str:
+def _get_tp_type(tp_columns: dict[str, str] | dict[tuple[str], str]) -> str:
     keys = list(tp_columns.keys())
 
     if keys and isinstance(keys[0], tuple):
@@ -47,7 +50,7 @@ def _get_tp_column(tp_columns: dict[str, str] | dict[tuple[str], str]) -> str:
     return keys[0]
 
 
-def _plot_colors_above_below_x_equals_x(
+def _plot_colors_above_below_x_equals_y(
     ax: Axes, x: pd.Series, y: pd.Series, no_diff_margin: float
 ):
     inside_margin = np.abs(x - y) <= no_diff_margin
@@ -87,19 +90,65 @@ def _plot_colors_outside_interval(
         )
 
 
+def _scatter_plot(
+    ax: Axes,
+    x: pd.Series,
+    y: pd.Series,
+    plot_type: Literal["interval", "outliers", "linregress"],
+    **type_kwargs: Any,
+) -> None:
+    match plot_type:
+        case "interval":
+            _plot_colors_above_below_x_equals_y(ax, x, y, type_kwargs["margin"])
+
+        case "outliers":
+            tp_comparison: pd.DataFrame = type_kwargs["tp_comparison"]
+            tp_type: str = type_kwargs["tp_type"]
+            lower_limit = tp_comparison[(tp_type, "2.5%")]
+            upper_limit = tp_comparison[(tp_type, "97.5%")]
+            _plot_colors_outside_interval(ax, x, y, lower_limit, upper_limit)
+
+        case "linregress":
+            sns.regplot(
+                x=x,
+                y=y,
+                scatter_kws={"color": "blue", "alpha": 0.25, "s": 40},
+                line_kws={"color": "black", "alpha": 0.5},
+                ax=ax,
+            )
+            ax.set_xlabel("")
+            ax.set_ylabel("")
+
+
 def plot_comparison_scatter(
     fig: Figure,
     axs: list[list[Axes]],
     sport_to_tp_comparison: dict[str, pd.DataFrame],
     tp_columns: dict[str, str] | dict[tuple[str], str] = TP_COLUMNS,
-    no_difference_margin: float | None = 3,
+    plot_type: Literal["interval", "outliers", "linregress"] = "interval",
+    x_equals_y_line: bool = True,
     pearson_corr_kwargs: dict[str, float | str] | None = PEARSON_KWARGS,
     title_as_text_kwargs: dict[str, float | str] | None = TEXT_TITLE_KWARGS,
-    x_equals_y_line: bool = True,
+    plot_type_kwargs: dict[str, Any] = {"margin": 0.01},
 ):
     """
-    If no_difference_margin is None, it will color according with whether or not
-    the values are inside the confidence interval [2.5%, 97.5%].
+    plot_type:
+        "interval":
+            plot_type_kwargs (default) = {"margin": 0.01}
+
+            Three colors/markers:
+                1:  x - y  >  margin
+                2: |x - y| <= margin
+                3:  y - x  >  margin
+
+        "outliers":
+            Three colors/markers:
+                1: Real variance below 0.025-quantile
+                2: Real variance inside confidence interval
+                3: Real variance above 0.975-quantile
+
+        "linregress":
+            Plots the linear regression between x and y.
     """
     flat_axs = pf.flatten_axes(axs)
 
@@ -118,13 +167,9 @@ def plot_comparison_scatter(
         if x_equals_y_line:
             pf.plot_x_equals_y_line(ax, x, y)
 
-        if no_difference_margin is not None:
-            _plot_colors_above_below_x_equals_x(ax, x, y, no_difference_margin)
-        else:
-            tp_column = _get_tp_column(tp_columns)
-            lower_limit = sport_to_tp_comparison[sport][(tp_column, "2.5%")]
-            upper_limit = sport_to_tp_comparison[sport][(tp_column, "97.5%")]
-            _plot_colors_outside_interval(ax, x, y, lower_limit, upper_limit)
+        plot_type_kwargs["tp_type"] = _get_tp_type(tp_columns)
+        plot_type_kwargs["tp_comparison"] = sport_to_tp_comparison[sport]
+        _scatter_plot(ax, x, y, plot_type, **plot_type_kwargs)
 
         if pearson_corr_kwargs is not None:
             corr_matrix = np.corrcoef(x, y)

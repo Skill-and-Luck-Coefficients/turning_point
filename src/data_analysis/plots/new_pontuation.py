@@ -11,7 +11,7 @@ def plot_new_pontuation_system(
     axs: list[Axes],
     sport_to_tp_comparison: dict[str, pd.DataFrame],
     tp_columns: dict[str, str] | dict[tuple[str], str],
-    no_difference_margin: float = 3,
+    no_difference_margin: float = 0.01,
 ):
     ax = axs[0]
     plot_comparison_scatter(
@@ -19,9 +19,10 @@ def plot_new_pontuation_system(
         [[ax]],
         sport_to_tp_comparison,
         tp_columns,
-        no_difference_margin=no_difference_margin,
+        plot_type="interval",
         pearson_corr_kwargs=None,
         title_as_text_kwargs=None,
+        plot_type_kwargs={"margin": no_difference_margin},
     )
     ax.set_title("")
     ax.set_xticks([0.25, 0.5, 0.75])
