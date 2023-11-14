@@ -6,6 +6,7 @@ from typing import Sequence
 
 import tournament_simulations.schedules.round_robin as rr
 from tournament_simulations.schedules import Round
+from tournament_simulations.schedules.utils.reversed_schedule import reverse_schedule
 
 from ..algorithm import generate_optimal_schedule
 
@@ -18,8 +19,9 @@ def _create_double_rr(
     (home, away) matches as (away, home).
     """
     drr = rr.DoubleRoundRobin.from_team_names(team_names, generate_optimal_schedule)
-    schedule = list(drr.get_full_schedule(num_schedules, None, second_portion))
-    return [tuple(reversed(round_)) for round_ in reversed(schedule)]
+    drr.first_schedule = reverse_schedule(drr.first_schedule)
+    drr.second_schedule = reverse_schedule(drr.second_schedule)
+    return list(drr.get_full_schedule(num_schedules, None, second_portion))
 
 
 create_double_rr = partial(_create_double_rr, second_portion="flipped")
@@ -36,8 +38,9 @@ def _create_random_double_rr(
     Randomizes which team play as home/away.
     """
     drr = rr.DoubleRoundRobin.from_team_names(team_names, generate_optimal_schedule)
-    schedule = list(drr.get_full_schedule(num_schedules, "home_away", second_portion))
-    return [tuple(reversed(round_)) for round_ in reversed(schedule)]
+    drr.first_schedule = reverse_schedule(drr.first_schedule)
+    drr.second_schedule = reverse_schedule(drr.second_schedule)
+    return list(drr.get_full_schedule(num_schedules, "home_away", second_portion))
 
 
 create_random_double_rr = partial(_create_random_double_rr, second_portion="flipped")
