@@ -13,6 +13,7 @@ def _find_turning_point_one_id(sequence: Sequence[bool]) -> float:
     """
     Turning point is the index for a sequence of True until the end.
     """
+    sequence = list(sequence)
 
     if len(sequence) == 0:
         return np.nan
