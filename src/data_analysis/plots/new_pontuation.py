@@ -3,7 +3,7 @@ from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
 from .comparison_boxplot import plot_comparison_boxplot
-from .comparison_scatter import plot_comparison_scatter
+from .comparison_scatter import plot_scatter_according_to_line_x_equals_y
 
 
 def plot_new_pontuation_system(
@@ -14,15 +14,15 @@ def plot_new_pontuation_system(
     no_difference_margin: float = 0.01,
 ):
     ax = axs[0]
-    plot_comparison_scatter(
+    plot_scatter_according_to_line_x_equals_y(
         fig,
         [[ax]],
         sport_to_tp_comparison,
         tp_columns,
-        plot_type="interval",
+        no_difference_margin=no_difference_margin,
+        # comparison kwargs
         pearson_corr_kwargs=None,
         title_as_text_kwargs=None,
-        plot_type_kwargs={"margin": no_difference_margin},
     )
     ax.set_title("")
     ax.set_xticks([0.25, 0.5, 0.75])
