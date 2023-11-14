@@ -51,7 +51,7 @@
             "should_create_it": true,
             "seed": 3,
             "parameters": {
-                "types": [ "tp_minimizer", "tp_maximizer" ]
+                "types": [ "tp_minimizer", "tp_minimizer_reversed", "tp_maximizer", "tp_maximizer_reversed" ]
             }
         },
         "turning_point": {
