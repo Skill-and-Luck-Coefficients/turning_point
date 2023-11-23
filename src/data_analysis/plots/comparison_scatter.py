@@ -158,16 +158,16 @@ def plot_scatter_according_to_confidence_interval(
     axs: list[list[Axes]],
     sport_to_tp_comparison: dict[str, pd.DataFrame],
     plot_columns_to_label: dict[str, str] | dict[tuple[str], str],
-    axis_in_interval: Literal["x", "y"] = "x",
+    col_in_interval: Literal["x", "y"] | str | tuple[str] = "x",
     confidence_interval_columns: list[str] | list[tuple[str]] = CONFIDENCE_COLUMNS,
     scatter_parameters: dict[Literal[-1, 0, 1], tuple[Any]] = CONFIDENCE_PARAMETERS,
     **comparison_scatter_kwargs: Any,
 ) -> None:
     """
-    axis_in_interval: Literal["x", "y"] = "x"
+    col_in_interval: Literal["x", "y"] | str | tuple[str] = "x"
         Which values should be compared to the interval.
 
-        If any string other than "x" or "y" is passed, the default value will be used.
+        If any string other than "x" or "y" is passed, it should be column.
 
     scatter_parameters: list[str] | list[tuple[str]]
         Which columns from tp_comparison should be used for the confidence interval.
@@ -200,7 +200,11 @@ def plot_scatter_according_to_confidence_interval(
         lower_col, upper_col = confidence_interval_columns
         lower_limit, upper_limit = tp_comparison[lower_col], tp_comparison[upper_col]
 
-        values = y if axis_in_interval == "y" else x
+        if col_in_interval in tp_comparison.columns:
+            values = tp_comparison[col_in_interval]
+        else:
+            values = y if col_in_interval == "y" else x
+
         below_or_above = _get_above_or_below(values, lower_limit, upper_limit)
 
         for key, (c, m, s, label) in scatter_parameters.items():
