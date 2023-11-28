@@ -7,8 +7,8 @@ from matplotlib.axes import Axes
 
 # col names to desired name
 HUE_COLUMNS: dict[tuple[str, str], str] = {
-    ("%turning point", "normal"): "Normal",
-    ("%turning point", "mean"): "Permuted",
+    ("%turning point", "normal"): r"Observed: $\tau_\%$",
+    ("%turning point", "mean"): r"Expected: $\hat\tau_\%$",
 }
 
 

@@ -10,9 +10,14 @@ from turning_point.normal_coefficient import TurningPoint
 from turning_point.variance_stats import ExpandingVarStats
 
 COLOR_MARKER_LABEL = {
-    "real var": ("red", "X", r"Real: $V_t$"),
-    "mean": ("forestgreen", "o", r"Mean Simul: $\mu_t$"),
-    "0.950-quantile": ("orange", "^", r"95% Simul: $q_t$"),
+    "real var": ("red", "X", r"Observed: $V_t$"),
+    "mean": ("darkgreen", "o", r"Expected Simul: $\mu_t$"),
+    # "0.950-quantile": ("orange", "^", r"95% Simul: $q_t$"),
+}
+
+FILL_BETWEEN = {
+    "mean": "forestgreen",
+    "0.950-quantile": "darkgreen",
 }
 
 TEXT_PARAMETERS = {
@@ -28,6 +33,12 @@ def _plot_variance_progression_one_tourney(
     color_marker_label_dict: pf.CMLDict,
 ) -> None:
     x: list[int] = variances.index.get_level_values("final date").to_list()
+
+    expected, envelope = FILL_BETWEEN.keys()
+    color = FILL_BETWEEN[expected]
+    expected_y, envelope_y = variances[expected], variances[envelope]
+    ax.fill_between(x, expected_y, envelope_y, color=color, alpha=0.1, lw=0)
+    ax.plot(x, envelope_y, color=FILL_BETWEEN[envelope], alpha=0.25)
 
     for column, (color, marker, _) in color_marker_label_dict.items():
         y = variances[column]
@@ -92,6 +103,6 @@ def plot_variances_temporal_progression(
         _plot_turning_point_text_one_tourney(ax, turning_point, **TEXT_PARAMETERS)
 
     pf.add_xlabels_nth_row(fig, axs, "Date", n=-1)
-    pf.add_ylabels_to_nth_col(fig, axs, "Variances", n=0)
+    pf.add_ylabels_to_nth_col(fig, axs, "Competitive Imbalance", n=0)
 
     pf.add_legend_from_color_maker_labels(flat_axs[0], COLOR_MARKER_LABEL.values())

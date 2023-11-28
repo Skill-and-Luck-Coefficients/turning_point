@@ -9,8 +9,8 @@ from matplotlib.figure import Figure
 import data_analysis.plots.utils.plot_functions as pf
 
 TP_COLUMNS: dict[tuple[str, str], str] = {
-    ("%turning point", "normal"): "Real",
-    ("%turning point", "mean"): "Permutation (mean)",
+    ("%turning point", "normal"): r"Observed: $\tau_\%$",
+    ("%turning point", "mean"): r"Expected: $\hat\tau_\%$",
 }
 
 CONFIDENCE_COLUMNS = [("%turning point", "2.5%"), ("%turning point", "97.5%")]
@@ -18,8 +18,8 @@ CONFIDENCE_COLUMNS = [("%turning point", "2.5%"), ("%turning point", "97.5%")]
 CONFIDENCE_PARAMETERS = {
     # COLOR, MARKER, SIZE, LABEL
     0: ("black", "*", 50, None),  # inside interval
-    -1: ("red", "o", 100, r"Real $\leq$ 2.5%"),  # below interval
-    1: ("blue", "s", 100, r"Real $\geq$ 97.5%"),  # above interval
+    -1: ("red", "o", 100, r"Observed $\leq$ 2.5%"),  # below interval
+    1: ("blue", "s", 100, r"Observed $\geq$ 97.5%"),  # above interval
 }
 
 LINE_X_EQUALS_Y_PARAMETERS = {
@@ -165,7 +165,7 @@ def plot_scatter_according_to_confidence_interval(
 ) -> None:
     """
     col_in_interval: Literal["x", "y"] | str | tuple[str] = "x"
-        Which values should be compared to the interval.
+        Which values should be compared to the interval. Where "x" and "y" are the plot axis.
 
         If any string other than "x" or "y" is passed, it should be column.
 
