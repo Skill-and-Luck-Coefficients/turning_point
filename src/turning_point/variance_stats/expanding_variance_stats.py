@@ -50,6 +50,7 @@ class ExpandingVarStats:
         winner_type: Literal["winner", "result"] = "winner",
         winner_to_points: Mapping[str, tuple[float, float]] = RESULT_TO_POINTS,
         id_to_probabilities: pd.Series | None = None,
+        quantile: float | None = None,
     ) -> ExpandingVarStats:
         """
         Create an instance of ExpandingSimulVarStats from Matches.
@@ -92,6 +93,11 @@ class ExpandingVarStats:
                     Pair: ranking points gained respectively by home-team and away-team.
 
                 If None, they will be estimated directly from 'matches'.
+
+            quantile: float | None = None
+                Desired quantile value.
+
+                If None, defaults to 0.95.
         """
 
         params = get_kwargs_expanding_from_matches(
@@ -100,5 +106,6 @@ class ExpandingVarStats:
             winner_type,
             winner_to_points,
             id_to_probabilities,
+            quantile,
         )
         return cls(**params)

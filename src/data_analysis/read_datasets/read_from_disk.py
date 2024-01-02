@@ -52,7 +52,9 @@ KEY_TO_CLASS_DIR: dict[Key, tuple[type[ContainDF], Path]] = {
 
 
 def read_as_dicts(
-    sports: Sport | Sequence[Sport], dataset_keys: Key | Sequence[Key] | None = None
+    sports: Sport | Sequence[Sport],
+    dataset_keys: Key | Sequence[Key] | None = None,
+    different_quantile: float | None = None,
 ) -> dict[Key, dict[Sport, ContainDF]]:
     """
     Read desired dataset information from disk.
@@ -83,6 +85,11 @@ def read_as_dicts(
                     "optimal_tp": Using an optimal schedule
                     "diff_points_tp": Using a different pointuation system
 
+        different_quantile: float | None = None
+            Desired quantile value.
+
+            If None, output will be associated with values at the 0.95 quantile.
+
     ----
     Returns:
         dict[Key, dict[Sport, <Desired Data>]]
@@ -96,11 +103,13 @@ def read_as_dicts(
     if isinstance(dataset_keys, str):
         dataset_keys = [dataset_keys]
 
+    quantile_dir = str(different_quantile) if different_quantile is not None else ""
+
     return {
         key: {
-            sport: class_(pd.read_csv(dir / f"{sport}.csv"))
+            sport: class_(pd.read_csv(dir / quantile_dir / f"{sport}.csv"))
             for sport in sports
-            if Path(dir / f"{sport}.csv").exists()
+            if Path(dir / quantile_dir / f"{sport}.csv").exists()
         }
         for key, (class_, dir) in KEY_TO_CLASS_DIR.items()
         if key in set(dataset_keys)

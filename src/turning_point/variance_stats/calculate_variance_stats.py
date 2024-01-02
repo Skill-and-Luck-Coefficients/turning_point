@@ -8,14 +8,16 @@ from turning_point.variances import Variances
 KwargsSVS = dict[Literal["df"], pd.DataFrame]
 
 
-def _calculate_mean_quantile(simul_var_df: pd.DataFrame) -> pd.DataFrame:
-    quantile = simul_var_df.quantile(0.95, axis=1).rename("0.950-quantile")
+def _calculate_mean_quantile(
+    simul_var_df: pd.DataFrame, quantile: float
+) -> pd.DataFrame:
+    quantiles = simul_var_df.quantile(quantile, axis=1).rename("0.950-quantile")
     mean = simul_var_df.mean(axis=1).rename("mean")
 
-    return pd.concat([mean, quantile], axis=1)
+    return pd.concat([mean, quantiles], axis=1)
 
 
-def get_kwargs_from_variances(variances: Variances) -> KwargsSVS:
+def get_kwargs_from_variances(variances: Variances, quantile: float) -> KwargsSVS:
     """
     Get Kwargs parameters to create an instance of SimulationVarStats
 
@@ -33,7 +35,7 @@ def get_kwargs_from_variances(variances: Variances) -> KwargsSVS:
                   for ranking-variances in simulations.
     """
 
-    simulated_stats = _calculate_mean_quantile(variances.simulated)
+    simulated_stats = _calculate_mean_quantile(variances.simulated, quantile)
     return {"df": pd.concat([variances.real, simulated_stats], axis=1)}
 
 
@@ -43,6 +45,7 @@ def get_kwargs_from_matches(
     winner_type: Literal["winner", "result"],
     winner_to_points: Mapping[str, tuple[float, float]],
     id_to_probabilities: pd.Series | None = None,
+    quantile: float = 0.95,
 ) -> KwargsSVS:
     """
     Get Kwargs parameters to create an instance of SimulationVarStats
@@ -99,5 +102,5 @@ def get_kwargs_from_matches(
         ppm, num_iteration_simulation, id_to_probabilities
     )
 
-    simulated_stats = _calculate_mean_quantile(variances.simulated)
+    simulated_stats = _calculate_mean_quantile(variances.simulated, quantile)
     return {"df": pd.concat([variances.real, simulated_stats], axis=1)}

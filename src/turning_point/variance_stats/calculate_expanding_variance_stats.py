@@ -51,6 +51,7 @@ def get_kwargs_expanding_from_matches(
     winner_type: Literal["winner", "result"] = "winner",
     winner_to_points: Mapping[str, tuple[float, float]] = RESULT_TO_POINTS,
     id_to_probabilities: pd.Series | None = None,
+    quantile: float | None = None,
 ) -> KwargsEW:
     """
     Iterated dynamic skill coefficient and removed teams for all possible
@@ -100,6 +101,11 @@ def get_kwargs_expanding_from_matches(
 
             If None, they will be estimated directly from 'matches'.
 
+        quantile: float | None = None
+            Desired quantile value.
+
+            If None, defaults to 0.95.
+
     -----
     Returns:
         Kwargs parameters required to create and instance of ExpandingCoefAndTeams
@@ -119,6 +125,7 @@ def get_kwargs_expanding_from_matches(
         winner_type=winner_type,
         winner_to_points=winner_to_points,
         id_to_probabilities=id_to_probabilities,
+        quantile=quantile,
     )
 
     return {"df": expading_df}

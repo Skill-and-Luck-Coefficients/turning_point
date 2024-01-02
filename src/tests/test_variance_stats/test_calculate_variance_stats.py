@@ -44,7 +44,7 @@ def test_calculate_quantile__one():
 
     expected = pd.DataFrame(expected_cols).astype({"id": "category"}).set_index("id")
 
-    assert vst._calculate_mean_quantile(test).equals(expected)
+    assert vst._calculate_mean_quantile(test, 0.95).equals(expected)
 
 
 def test_calculate_quantile__two():
@@ -82,7 +82,7 @@ def test_calculate_quantile__two():
         .set_index(["id", "final date"])
     )
 
-    assert vst._calculate_mean_quantile(test).equals(expected)
+    assert vst._calculate_mean_quantile(test, 0.95).equals(expected)
 
 
 def test_get_kwargs_from_variances():
@@ -124,7 +124,7 @@ def test_get_kwargs_from_variances():
 
     expected = pd.DataFrame(expected_cols).set_index("id")
 
-    assert vst.get_kwargs_from_variances(test)["df"].equals(expected)
+    assert vst.get_kwargs_from_variances(test, 0.95)["df"].equals(expected)
 
 
 def test_get_kwargs_from_matches():

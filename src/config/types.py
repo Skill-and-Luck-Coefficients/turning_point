@@ -31,11 +31,13 @@ class TurningPointParameters(TypedDict):
     num_iteration_simulation: list[int]
     winner_type = Literal["winner", "result"]
     winner_to_points = Mapping[str, tuple[float, float]]
+    quantile: float
     """
 
     num_iteration_simulation: list[int]
     winner_type: Literal["winner", "result"]
     winner_to_points: Mapping[str, tuple[float, float]]
+    quantile: float
 
 
 class TurningPointConfig(TypedDict):
@@ -106,11 +108,15 @@ class OptimalConfig(TypedDict):
 
 class ConfigurationType(TypedDict):
     """
-    REAL_MATCHES: RealMatchesConfig
+    REAL_MATCHES: RealConfig
     PERMUTED_MATCHES: PermutedConfig
+    OPTIMAL_SCHEDULE: OptimalConfig
+    DIFFERENT_POINT_SYSTEM: RealConfig
+    DIFFERENT_QUANTILE: RealConfig
     """
 
     REAL_MATCHES: RealConfig
     PERMUTED_MATCHES: PermutedConfig
     OPTIMAL_SCHEDULE: OptimalConfig
     DIFFERENT_POINT_SYSTEM: RealConfig
+    DIFFERENT_QUANTILE: RealConfig

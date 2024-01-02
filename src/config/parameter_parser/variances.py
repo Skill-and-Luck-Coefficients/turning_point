@@ -41,6 +41,7 @@ def _get_variance_stats(matches: Matches, **kwargs) -> vs.ExpandingVarStats:
             winner_type=kwargs["winner_type"],
             winner_to_points=winner_to_points,
             id_to_probabilities=filtered_ppm.probabilities_per_id(point_pairs),
+            quantile=kwargs["quantile"],
         )
 
         all_var_stats.append(var_stats.df)

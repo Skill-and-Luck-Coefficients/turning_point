@@ -45,7 +45,9 @@ class SimulationVarStats:
         self.df = self.df.astype(data_types).set_index(index_cols).sort_index()
 
     @classmethod
-    def from_variances(cls, variances: Variances) -> SimulationVarStats:
+    def from_variances(
+        cls, variances: Variances, quantile: float = 0.95
+    ) -> SimulationVarStats:
         """
         Create an instance of SimulationVarStats from variances.
 
@@ -55,7 +57,7 @@ class SimulationVarStats:
             variances: Variances
                 Ranking-variances for real and simulated tournaments.
         """
-        parameters = get_kwargs_from_variances(variances)
+        parameters = get_kwargs_from_variances(variances, quantile)
         return cls(**parameters)
 
     @classmethod
@@ -66,6 +68,7 @@ class SimulationVarStats:
         winner_type: Literal["winner", "result"] = "winner",
         winner_to_points: Mapping[str, tuple[float, float]] = RESULT_TO_POINTS,
         id_to_probabilities: pd.Series | None = None,
+        quantile: float = 0.95,
     ) -> SimulationVarStats:
         """
         Create an instance of SimulationVarStats from Matches.
@@ -114,5 +117,6 @@ class SimulationVarStats:
             winner_type,
             winner_to_points,
             id_to_probabilities,
+            quantile,
         )
         return cls(**parameters)
