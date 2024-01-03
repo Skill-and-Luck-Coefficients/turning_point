@@ -31,14 +31,20 @@ def _plot_variance_progression_one_tourney(
     ax: Axes,
     variances: pd.DataFrame,
     color_marker_label_dict: pf.CMLDict,
+    lower_envelope: pd.DataFrame | None = None,
 ) -> None:
     x: list[int] = variances.index.get_level_values("final date").to_list()
 
     expected, envelope = FILL_BETWEEN.keys()
     color = FILL_BETWEEN[expected]
-    expected_y, envelope_y = variances[expected], variances[envelope]
-    ax.fill_between(x, expected_y, envelope_y, color=color, alpha=0.1, lw=0)
-    ax.plot(x, envelope_y, color=FILL_BETWEEN[envelope], alpha=0.25)
+
+    lower_y, upper_y = variances[expected], variances[envelope]
+    if lower_envelope is not None:
+        lower_y = lower_envelope[envelope]
+        ax.plot(x, lower_y, color=FILL_BETWEEN[envelope], alpha=0.25)
+
+    ax.fill_between(x, lower_y, upper_y, color=color, alpha=0.1, lw=0)
+    ax.plot(x, upper_y, color=FILL_BETWEEN[envelope], alpha=0.25)
 
     for column, (color, marker, _) in color_marker_label_dict.items():
         y = variances[column]
@@ -74,8 +80,8 @@ def _plot_turning_point_text_one_tourney(
 
     text: str = f"$\\tau$={turning_point:.0f}"  # tau: greek letter for turning point
 
-    displacement: float = 3 if (text_ha == "left") else -3
-    text_x_pos: int = turning_point + displacement
+    displacement = 3 if (text_ha == "left") else -3
+    text_x_pos = turning_point + displacement
 
     ax.text(text_x_pos, text_y_pos, text, ha=text_ha, size=text_size)
 
@@ -87,20 +93,31 @@ def plot_variances_temporal_progression(
     sport_to_var_stats: dict[str, ExpandingVarStats],
     names_and_ids: tuple[tuple[str, str]],
     last_date: int,
+    sport_to_lower_envelope_bound: dict[str, ExpandingVarStats] | None = None,
 ) -> None:
     flat_axs = pf.flatten_axes(axs)
 
     for ax, (name, id_) in zip(flat_axs, names_and_ids):
         sport = pf.get_sport_name_from_id(id_)
 
-        variances: pd.DataFrame = sport_to_var_stats[sport].df.loc[id_].iloc[:last_date]
-        turning_point: int = sport_to_tp[sport].df.loc[id_, "turning point"]
+        variances = sport_to_var_stats[sport].df
+        turning_point = sport_to_tp[sport].df
+
+        filtered_var: pd.DataFrame = variances.loc[id_].iloc[:last_date]
+        filtered_tp: int = turning_point.loc[id_, "turning point"]
+
+        filtered_lower_var = None
+        if sport_to_lower_envelope_bound is not None:
+            lower_variances = sport_to_lower_envelope_bound[sport].df
+            filtered_lower_var: pd.DataFrame = lower_variances.loc[id_].iloc[:last_date]
 
         ax.set_title(name)
 
-        _plot_variance_progression_one_tourney(ax, variances, COLOR_MARKER_LABEL)
-        _plot_turning_point_line_one_tourney(ax, turning_point)
-        _plot_turning_point_text_one_tourney(ax, turning_point, **TEXT_PARAMETERS)
+        _plot_variance_progression_one_tourney(
+            ax, filtered_var, COLOR_MARKER_LABEL, filtered_lower_var
+        )
+        _plot_turning_point_line_one_tourney(ax, filtered_tp)
+        _plot_turning_point_text_one_tourney(ax, filtered_tp, **TEXT_PARAMETERS)
 
     pf.add_xlabels_nth_row(fig, axs, "Date", n=-1)
     pf.add_ylabels_to_nth_col(fig, axs, "Competitive Imbalance", n=0)
