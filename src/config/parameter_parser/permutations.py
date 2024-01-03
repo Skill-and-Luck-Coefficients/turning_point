@@ -17,14 +17,8 @@ from .. import types
 def _create_synthetic_matches(
     filenames: list[str],
     read_directory: Path,
-    permuted_config: types.PermutedMatches,
+    permuted_parameters: types.PermutedMatchesParameters,
 ) -> dict[str, Matches]:
-    if not permuted_config["should_create_it"]:
-        return {}
-
-    random.seed(permuted_config["seed"])
-    nprandom.seed(permuted_config["seed"])
-
     filename_to_matches = {}
 
     for filename in filenames:
@@ -40,7 +34,7 @@ def _create_synthetic_matches(
 
         permutations_creator = MatchesPermutations(matches, scheduler)
 
-        num_permutations = permuted_config["parameters"]["num_permutations"]
+        num_permutations = permuted_parameters["num_permutations"]
         permuted_matches = permutations_creator.create_n_permutations(num_permutations)
 
         filename_to_matches[filename] = permuted_matches
@@ -53,10 +47,18 @@ def create_and_save_permuted_matches(
     read_directory: Path,
     save_directory: Path,
 ) -> None:
+    permuted_config = config["matches"]
+
+    if not permuted_config["should_create_it"]:
+        return
+
+    random.seed(permuted_config["seed"])
+    nprandom.seed(permuted_config["seed"])
+
     filename_to_matches = _create_synthetic_matches(
         config["sports"],
         read_directory,
-        config["matches"],
+        permuted_config["parameters"],
     )
 
     save_directory.mkdir(parents=True, exist_ok=True)

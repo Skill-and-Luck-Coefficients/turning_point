@@ -138,9 +138,13 @@ Default values are in [`parameters.json`](https://github.com/EstefanoB/turning_p
 - **should_<...>_it**
     - Boolen value
     - Whether or not the code associated with that portion should be run.
+- **quantile**
+    - Float (or list of floats)
+    - Quantile values to use when calculating the envelope.
 - **seed**
-    - Integer
+    - Integer (or list of integers)
     - Seed which should be used for random events. 
+    - If more than one quantile is passed as argument, you can pass a different seed for each one.
 - **num_iteration_simulation** 
     - List with two integers
     - Respectively, number of iterations and number of simulations per iteration.

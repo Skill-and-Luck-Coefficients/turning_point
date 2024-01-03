@@ -31,24 +31,24 @@ class TurningPointParameters(TypedDict):
     num_iteration_simulation: list[int]
     winner_type = Literal["winner", "result"]
     winner_to_points = Mapping[str, tuple[float, float]]
-    quantile: float
     """
 
     num_iteration_simulation: list[int]
     winner_type: Literal["winner", "result"]
     winner_to_points: Mapping[str, tuple[float, float]]
-    quantile: float
 
 
 class TurningPointConfig(TypedDict):
     """
     should_calculate_it: bool
-    seed: int
+    seed: int | list[int]
+    quantile: float | list[float]
     parameters: TurningPointParameters
     """
 
     should_calculate_it: bool
-    seed: int
+    seed: int | list[int]
+    quantile: float | list[float]
     parameters: TurningPointParameters
 
 

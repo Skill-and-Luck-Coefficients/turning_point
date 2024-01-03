@@ -13,11 +13,7 @@ from .. import types
 def _calculate_turning_point(
     filenames: str | list[str],
     read_directory: Path,
-    tp_config: types.TurningPointConfig,
 ) -> dict[str, nc.TurningPoint]:
-    if not tp_config["should_calculate_it"]:
-        return {}
-
     filename_to_turning_point = {}
 
     for filename in filenames:
@@ -35,17 +31,41 @@ def _calculate_turning_point(
     return filename_to_turning_point
 
 
+def _parse_quantiles(quantiles: float | list[float]) -> list[float]:
+    if not isinstance(quantiles, list):
+        quantiles = [quantiles]
+
+    return quantiles
+
+
+def _get_quantile_path(original_path: Path, quantile: float) -> Path:
+    if quantile == 0.95:
+        return original_path
+    return original_path / str(quantile)
+
+
 def calculate_and_save_turning_points(
     config: types.RealConfig | types.PermutedConfig,
     read_directory: Path,
     save_directory: Path,
 ) -> None:
-    filename_to_turning_point = _calculate_turning_point(
-        config["sports"],
-        read_directory,
-        config["turning_point"],
-    )
+    tp_config = config["turning_point"]
 
-    save_directory.mkdir(parents=True, exist_ok=True)
-    for filename, turning_point in filename_to_turning_point.items():
-        turning_point.df.to_csv(save_directory / f"{filename}.csv")
+    if not tp_config["should_calculate_it"]:
+        return
+
+    quantiles = _parse_quantiles(tp_config["quantile"])
+
+    for quantile in quantiles:
+        quantile_read_dir = _get_quantile_path(read_directory, quantile)
+
+        filename_to_turning_point = _calculate_turning_point(
+            config["sports"],
+            quantile_read_dir,
+        )
+
+        quantile_save_dir = _get_quantile_path(save_directory, quantile)
+        quantile_save_dir.mkdir(parents=True, exist_ok=True)
+
+        for filename, var_stats in filename_to_turning_point.items():
+            var_stats.df.to_csv(quantile_save_dir / f"{filename}.csv")

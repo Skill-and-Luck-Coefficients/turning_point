@@ -12,7 +12,9 @@ from tournament_simulations.data_structures import Matches, PointsPerMatch
 from .. import types
 
 
-def _get_variance_stats(matches: Matches, **kwargs) -> vs.ExpandingVarStats:
+def _get_variance_stats(
+    matches: Matches, quantile: float, **kwargs
+) -> vs.ExpandingVarStats:
     """
     This function works both for real matches and permutation matches.
 
@@ -41,7 +43,7 @@ def _get_variance_stats(matches: Matches, **kwargs) -> vs.ExpandingVarStats:
             winner_type=kwargs["winner_type"],
             winner_to_points=winner_to_points,
             id_to_probabilities=filtered_ppm.probabilities_per_id(point_pairs),
-            quantile=kwargs["quantile"],
+            quantile=quantile,
         )
 
         all_var_stats.append(var_stats.df)
@@ -53,14 +55,9 @@ def _get_variance_stats(matches: Matches, **kwargs) -> vs.ExpandingVarStats:
 def _calculate_variance_stats(
     filenames: str | list[str],
     read_directory: Path,
-    var_config: types.TurningPointConfig,
+    var_parameters: types.TurningPointParameters,
+    quantile: float,
 ) -> dict[str, vs.ExpandingVarStats]:
-    if not var_config["should_calculate_it"]:
-        return {}
-
-    random.seed(var_config["seed"])
-    nprandom.seed(var_config["seed"])
-
     filenames = [filenames] if isinstance(filenames, str) else list(filenames)
 
     filename_to_var_stats = {}
@@ -72,13 +69,33 @@ def _calculate_variance_stats(
             continue
 
         matches = Matches(pd.read_csv(filepath))
-
-        kwargs = var_config["parameters"]
-        var_stats = _get_variance_stats(matches, **kwargs)
+        var_stats = _get_variance_stats(matches, quantile, **var_parameters)
 
         filename_to_var_stats[filename] = var_stats
 
     return filename_to_var_stats
+
+
+def _parse_quantiles_and_seeds(
+    quantiles: float | list[float], seeds: int | list[int]
+) -> tuple[list[float], list[int]]:
+    if not isinstance(quantiles, list):
+        quantiles = [quantiles]
+
+    if not isinstance(seeds, list):
+        seeds = [seeds]
+
+    size_diff = len(quantiles) - len(seeds)
+    if size_diff > 0:
+        seeds = seeds + [seeds[0] for _ in range(size_diff)]
+
+    return quantiles, seeds
+
+
+def _get_quantile_path(original_path: Path, quantile: float) -> Path:
+    if quantile == 0.95:
+        return original_path
+    return original_path / str(quantile)
 
 
 def calculate_and_save_var_stats(
@@ -86,12 +103,28 @@ def calculate_and_save_var_stats(
     read_directory: Path,
     save_directory: Path,
 ) -> None:
-    filename_to_var_stats = _calculate_variance_stats(
-        config["sports"],
-        read_directory,
-        config["turning_point"],
+    var_config = config["turning_point"]
+
+    if not var_config["should_calculate_it"]:
+        return
+
+    quantiles, seeds = _parse_quantiles_and_seeds(
+        var_config["quantile"], var_config["seed"]
     )
 
-    save_directory.mkdir(parents=True, exist_ok=True)
-    for filename, var_stats in filename_to_var_stats.items():
-        var_stats.df.to_csv(save_directory / f"{filename}.csv")
+    for seed, quantile in zip(seeds, quantiles):
+        random.seed(seed)
+        nprandom.seed(seed)
+
+        filename_to_var_stats = _calculate_variance_stats(
+            config["sports"],
+            read_directory,
+            config["turning_point"]["parameters"],
+            quantile,
+        )
+
+        quantile_save_dir = _get_quantile_path(save_directory, quantile)
+        quantile_save_dir.mkdir(parents=True, exist_ok=True)
+
+        for filename, var_stats in filename_to_var_stats.items():
+            var_stats.df.to_csv(quantile_save_dir / f"{filename}.csv")

@@ -24,9 +24,8 @@ KEY_TO_SCHEDULING_FUNCTION = {
 
 def _concat_optimal_schedules_for_all_types(
     matches: Matches,
-    optimal_cfg: types.OptimalMatchesConfig,
+    desired_types: types.OptimalScheduleTypes | list[types.OptimalScheduleTypes],
 ) -> Matches:
-    desired_types = optimal_cfg["parameters"]["types"]
     if isinstance(desired_types, str):
         desired_types = [desired_types]
 
@@ -55,14 +54,8 @@ def _concat_optimal_schedules_for_all_types(
 def _create_synthetic_matches(
     filenames: list[str],
     read_directory: Path,
-    optimal_cfg: types.OptimalMatchesConfig,
+    desired_types: types.OptimalScheduleTypes | list[types.OptimalScheduleTypes],
 ) -> dict[str, Matches]:
-    if not optimal_cfg["should_create_it"]:
-        return {}
-
-    random.seed(optimal_cfg["seed"])
-    nprandom.seed(optimal_cfg["seed"])
-
     filename_to_matches = {}
 
     for filename in filenames:
@@ -72,7 +65,9 @@ def _create_synthetic_matches(
             continue
 
         matches = Matches(pd.read_csv(filepath))
-        optimal_matches = _concat_optimal_schedules_for_all_types(matches, optimal_cfg)
+        optimal_matches = _concat_optimal_schedules_for_all_types(
+            matches, desired_types
+        )
         filename_to_matches[filename] = optimal_matches
 
     return filename_to_matches
@@ -83,10 +78,17 @@ def create_and_save_optimal_matches(
     read_directory: Path,
     save_directory: Path,
 ) -> None:
+    optimal_cfg = config["matches"]
+    if not optimal_cfg["should_create_it"]:
+        return
+
+    random.seed(optimal_cfg["seed"])
+    nprandom.seed(optimal_cfg["seed"])
+
     filename_to_matches = _create_synthetic_matches(
         config["sports"],
         read_directory,
-        config["matches"],
+        optimal_cfg["parameters"]["types"],
     )
 
     save_directory.mkdir(parents=True, exist_ok=True)
