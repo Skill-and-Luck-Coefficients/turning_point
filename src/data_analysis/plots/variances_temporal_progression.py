@@ -119,7 +119,7 @@ def plot_variances_temporal_progression(
         _plot_turning_point_line_one_tourney(ax, filtered_tp)
         _plot_turning_point_text_one_tourney(ax, filtered_tp, **TEXT_PARAMETERS)
 
-    pf.add_xlabels_nth_row(fig, axs, "Date", n=-1)
+    pf.add_xlabels_nth_row(fig, axs, "Matchday", n=-1)
     pf.add_ylabels_to_nth_col(fig, axs, "Competitive Imbalance", n=0)
 
     pf.add_legend_from_color_maker_labels(flat_axs[0], COLOR_MARKER_LABEL.values())
