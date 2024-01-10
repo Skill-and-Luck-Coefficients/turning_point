@@ -1,3 +1,5 @@
+from typing import Mapping
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -20,11 +22,41 @@ FILL_BETWEEN = {
     "0.950-quantile": "darkgreen",
 }
 
-TEXT_PARAMETERS = {
+TextParams = dict[str, float | str]
+
+TEXT_PARAMETERS: TextParams = {
     "text_size": 30,
-    "text_y_pos": 60,
+    "text_y_pos": 65,
     "text_ha": "right",  # ha: horizontal alignment
 }
+
+
+def _parse_text_parameters(
+    text_parameters: TextParams | list[TextParams] | None,
+    number_of_images: int,
+) -> list[tuple[TextParams, TextParams]]:
+    """
+    First output: parameters for 'tp text'
+    Second output: parameters for 'num teams text'
+    """
+
+    def _get_tp_and_teams_params(text_params: TextParams) -> TextParams:
+        teams_params = {k: v for k, v in text_params.items()}
+        teams_params["text_y_pos"] = text_params["team_text_y_pos"]
+        del teams_params["team_text_y_pos"], teams_params["tp_text_y_pos"]
+
+        text_params["text_y_pos"] = text_params["tp_text_y_pos"]
+        del text_params["team_text_y_pos"], text_params["tp_text_y_pos"]
+
+        return text_params, teams_params
+
+    if text_parameters is None:
+        text_parameters = TEXT_PARAMETERS
+
+    if isinstance(text_parameters, Mapping):
+        text_parameters = [TEXT_PARAMETERS] * number_of_images
+
+    return [_get_tp_and_teams_params(tp_params) for tp_params in text_parameters]
 
 
 def _plot_variance_progression_one_tourney(
@@ -86,23 +118,45 @@ def _plot_turning_point_text_one_tourney(
     ax.text(text_x_pos, text_y_pos, text, ha=text_ha, size=text_size)
 
 
+def _plot_num_teams_text_one_tourney(
+    ax: Axes,
+    num_teams: float,
+    xpos: float,
+    text_ha: str,
+    text_y_pos: float,
+    text_size: int,
+) -> None:
+    text: str = f"{num_teams} teams"
+
+    displacement = 3 if (text_ha == "left") else -3
+    text_x_pos = xpos + displacement
+
+    ax.text(text_x_pos, text_y_pos, text, ha=text_ha, size=text_size)
+
+
 def plot_variances_temporal_progression(
     fig: Figure,
     axs: list[list[Axes]],
     sport_to_tp: dict[str, TurningPoint],
     sport_to_var_stats: dict[str, ExpandingVarStats],
-    names_and_ids: tuple[tuple[str, str]],
+    names__ids: tuple[tuple[str, str]],
     last_date: int,
     sport_to_lower_envelope_bound: dict[str, ExpandingVarStats] | None = None,
+    sport_to_num_teams: dict[str, pd.Series] | None = None,
+    text_params: dict[TextParams] | list[dict[TextParams]] | None = None,
 ) -> None:
     flat_axs = pf.flatten_axes(axs)
 
-    for ax, (name, id_) in zip(flat_axs, names_and_ids):
+    naxis = len(flat_axs)
+    text_params = _parse_text_parameters(text_params, naxis)
+
+    for ax, (name, id_), (tp_text, team_text) in zip(flat_axs, names__ids, text_params):
         sport = pf.get_sport_name_from_id(id_)
 
         variances = sport_to_var_stats[sport].df
         turning_point = sport_to_tp[sport].df
 
+        nteams = sport_to_num_teams[sport].loc[id_]
         filtered_var: pd.DataFrame = variances.loc[id_].iloc[:last_date]
         filtered_tp: int = turning_point.loc[id_, "turning point"]
 
@@ -117,7 +171,8 @@ def plot_variances_temporal_progression(
             ax, filtered_var, COLOR_MARKER_LABEL, filtered_lower_var
         )
         _plot_turning_point_line_one_tourney(ax, filtered_tp)
-        _plot_turning_point_text_one_tourney(ax, filtered_tp, **TEXT_PARAMETERS)
+        _plot_turning_point_text_one_tourney(ax, filtered_tp, **tp_text)
+        _plot_num_teams_text_one_tourney(ax, nteams, filtered_tp, **team_text)
 
     pf.add_xlabels_nth_row(fig, axs, "Matchday", n=-1)
     pf.add_ylabels_to_nth_col(fig, axs, "Competitive Imbalance", n=0)
