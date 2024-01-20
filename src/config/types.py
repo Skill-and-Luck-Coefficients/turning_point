@@ -43,12 +43,14 @@ class TurningPointConfig(TypedDict):
     should_calculate_it: bool
     seed: int | list[int]
     quantile: float | list[float]
+    metric: str | list[str]
     parameters: TurningPointParameters
     """
 
     should_calculate_it: bool
     seed: int | list[int]
     quantile: float | list[float]
+    metric: str | list[str]
     parameters: TurningPointParameters
 
 

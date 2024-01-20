@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from logs import log, turning_logger
-from turning_point.variance_stats import ExpandingVarStats
+from turning_point.metric_stats import ExpandingMetricStats
 
 KwargsTP = dict[Literal["df"], pd.DataFrame]
 
@@ -39,7 +39,7 @@ def _find_turning_point_percent_one_id(sequence: Sequence[bool]) -> float:
 
 @log(turning_logger.debug)
 def get_kwargs_from_expanding_variances_stats(
-    expanding_var: ExpandingVarStats,
+    expanding_var: ExpandingMetricStats,
 ) -> KwargsTP:
     """
     Calculate turning point.
@@ -47,10 +47,10 @@ def get_kwargs_from_expanding_variances_stats(
     -----
     Parameters:
 
-        expanding_var: ExpandingVarStats:
+        expanding_var: ExpandingMetricStats:
 
             1) Real variances for all tournaments.
-            2) Statistical data (mean and 0.95-quantile) over all simulations.
+            2) Statistical data (mean and a quantile) over all simulations.
 
             Each date number window starting at zero has it own value.
 
@@ -60,8 +60,8 @@ def get_kwargs_from_expanding_variances_stats(
             "df": Turning point values for all tournaments.
     """
 
-    real_var = expanding_var.df["real var"]
-    simul_quantile = expanding_var.df["0.950-quantile"]
+    real_var = expanding_var.df["real"]
+    simul_quantile = expanding_var.df["quantile"]
 
     real_greater_quantile = real_var > simul_quantile
 

@@ -108,7 +108,9 @@ Date (or match) after which the tournament can't be considered random anymore.
 ---
 
 ### **Paths**
-All paths are defined in [`src/config/dataset_paths.py`](https://github.com/EstefanoB/turning_point/blob/main/src/config/dataset_paths.py).
+All default paths are defined in [`src/config/dataset_paths.py`](https://github.com/EstefanoB/turning_point/blob/main/src/config/dataset_paths.py).
+
+Directory for different quantiles and metrics are of the form: "{default}/{quantile}/{metric}/"
 
 Filename for a sport should be `f"{sport}.csv"`.
 
@@ -158,6 +160,10 @@ Default values are in [`parameters.json`](https://github.com/EstefanoB/turning_p
 - **winner_to_points**
     - Mapping[str, tuple[float, float]]
     - Maps the winner (or result if winner_type is "result") to the points home and away teams gained after the match (respectively).
+- **metric**
+    - str | Iterable[str]
+    - Which metric should be used.
+    - Options: See https://github.com/EstefanoB/turning_point/blob/main/src/turning_point/metrics/__init__.py
 - **types**
     - In OPTIMAL_SCHEDULE["matches"]["parameters"]
     - One of the values (strings) below, or a list of them.

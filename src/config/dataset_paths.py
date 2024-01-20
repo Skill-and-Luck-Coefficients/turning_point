@@ -13,10 +13,10 @@ DIFF_POINTS_TURN_POINT_PATH = DATA_PATH / "turning_point/different_points/"
 PERMUTED_TURNING_POINT_PATH = DATA_PATH / "turning_point/permuted/"
 OPTIMAL_TURNING_POINT_PATH = DATA_PATH / "turning_point/optimal/"
 
-VARIANCE_STATS_PATH = DATA_PATH / "variance_stats/real/"
-DIFF_POINTS_VAR_STATS_PATH = DATA_PATH / "variance_stats/different_points/"
-PERMUTED_VARIANCE_STATS_PATH = DATA_PATH / "variance_stats/permuted/"
-OPTIMAL_VARIANCE_STATS_PATH = DATA_PATH / "variance_stats/optimal/"
+STATS_PATH = DATA_PATH / "stats/real/"
+DIFF_POINTS_STATS_PATH = DATA_PATH / "stats/different_points/"
+PERMUTED_STATS_PATH = DATA_PATH / "stats/permuted/"
+OPTIMAL_STATS_PATH = DATA_PATH / "stats/optimal/"
 
 # Where to save plots
 PLOT_PATH = DATA_PATH / "images/"

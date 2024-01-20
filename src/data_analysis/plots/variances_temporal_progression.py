@@ -8,18 +8,18 @@ from matplotlib.figure import Figure
 
 from data_analysis.plots.utils import plot_functions as pf
 from logs import turning_logger
+from turning_point.metric_stats import ExpandingMetricStats
 from turning_point.normal_coefficient import TurningPoint
-from turning_point.variance_stats import ExpandingVarStats
 
 COLOR_MARKER_LABEL = {
-    "real var": ("red", "X", r"Observed: $V_t$"),
+    "real": ("red", "X", r"Observed: $V_t$"),
     "mean": ("darkgreen", "o", r"Expected Simul: $\mu_t$"),
-    # "0.950-quantile": ("orange", "^", r"95% Simul: $q_t$"),
+    # "quantile": ("orange", "^", r"95% Simul: $q_t$"),
 }
 
 FILL_BETWEEN = {
     "mean": "forestgreen",
-    "0.950-quantile": "darkgreen",
+    "quantile": "darkgreen",
 }
 
 TextParams = dict[str, float | str]
@@ -138,10 +138,10 @@ def plot_variances_temporal_progression(
     fig: Figure,
     axs: list[list[Axes]],
     sport_to_tp: dict[str, TurningPoint],
-    sport_to_var_stats: dict[str, ExpandingVarStats],
+    sport_to_var_stats: dict[str, ExpandingMetricStats],
     names__ids: tuple[tuple[str, str]],
     last_date: int,
-    sport_to_lower_envelope_bound: dict[str, ExpandingVarStats] | None = None,
+    sport_to_lower_envelope_bound: dict[str, ExpandingMetricStats] | None = None,
     sport_to_num_teams: dict[str, pd.Series] | None = None,
     text_params: dict[TextParams] | list[dict[TextParams]] | None = None,
 ) -> None:

@@ -2,11 +2,10 @@ import numpy as np
 import pandas as pd
 
 import turning_point.normal_coefficient.calculate_turning_point as ctp
-from turning_point.variance_stats import ExpandingVarStats
+from turning_point.metric_stats import ExpandingMetricStats
 
 
 def test_find_turning_point_one_id():
-
     iter = []
     assert np.isnan(ctp._find_turning_point_one_id(iter))
 
@@ -27,7 +26,6 @@ def test_find_turning_point_one_id():
 
 
 def test_find_turning_point_percent_one_id():
-
     iter = []
     assert np.isnan(ctp._find_turning_point_percent_one_id(iter))
 
@@ -48,15 +46,14 @@ def test_find_turning_point_percent_one_id():
 
 
 def test_get_kwargs_from_expanding_variances_stats():
-
-    var_quantile = ExpandingVarStats(
+    var_quantile = ExpandingMetricStats(
         pd.DataFrame(
             {
                 "id": pd.Categorical(["1", "1", "2", "2", "2"]),
                 "final date": [0, 1, 0, 1, 2],
-                "real var": [1, 3, 2, 2, 5],
+                "real": [1, 3, 2, 2, 5],
                 "mean": [0, 1, 2, 3, 4],
-                "0.950-quantile": [0, 2, 1, 3, 4],
+                "quantile": [0, 2, 1, 3, 4],
             }
         ).set_index(["id", "final date"])
     )

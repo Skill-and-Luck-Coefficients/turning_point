@@ -3,7 +3,7 @@ from typing import Iterable, Sequence
 import numpy as np
 import pandas as pd
 
-from turning_point.variance_stats import ExpandingVarStats
+from turning_point.metric_stats import ExpandingMetricStats
 
 
 def _calculate_boolean_sequences_size(sequence: Sequence) -> list[int]:
@@ -25,9 +25,9 @@ def _max_default_zero(list_: Iterable) -> float:
 
 
 def get_variance_fluctuating_close_to_envelope(
-    sport_to_var_stats: dict[str, ExpandingVarStats],
-    var_col: str = "real var",
-    envelope_col: str = "0.950-quantile",
+    sport_to_var_stats: dict[str, ExpandingMetricStats],
+    var_col: str = "real",
+    envelope_col: str = "quantile",
     max_sequence_size: int = 10,
 ) -> pd.DataFrame:
     """

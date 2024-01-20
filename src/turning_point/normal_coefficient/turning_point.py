@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import pandas as pd
 
-from turning_point.variance_stats import ExpandingVarStats
+from turning_point.metric_stats import ExpandingMetricStats
 
 from .calculate_turning_point import get_kwargs_from_expanding_variances_stats
 
@@ -30,7 +30,6 @@ class TurningPoint:
     df: pd.DataFrame
 
     def __post_init__(self) -> None:
-
         index_cols = ["id"]
 
         index_to_reset = [name for name in index_cols if name in self.df.index.names]
@@ -41,16 +40,15 @@ class TurningPoint:
 
     @classmethod
     def from_expanding_var_stats(
-        cls, expanding_stats: ExpandingVarStats
+        cls, expanding_stats: ExpandingMetricStats
     ) -> TurningPoint:
-
         """
         Creates an instance of TurningPoint from expanding variances stats.
 
         -----
         Parameters:
 
-            expanding_var: ExpandingVarStats:
+            expanding_var: ExpandingMetricStats:
 
                 1) Real variances for all tournaments.
                 2) Statistical data (mean and 0.95-quantile) over all simulations.

@@ -36,20 +36,20 @@ def main() -> None:
     # COEFFICIENTS
     #   Variance Stats
     var_config_read_dir_save_dir = [
-        (real_cfg, path.MATCHES_PATH, path.VARIANCE_STATS_PATH),
-        (diff_cfg, path.MATCHES_PATH, path.DIFF_POINTS_VAR_STATS_PATH),
-        (perm_cfg, path.PERMUTED_MATCHES_PATH, path.PERMUTED_VARIANCE_STATS_PATH),
-        (opt_cfg, path.OPTIMAL_MATCHES_PATH, path.OPTIMAL_VARIANCE_STATS_PATH),
+        (real_cfg, path.MATCHES_PATH, path.STATS_PATH),
+        (diff_cfg, path.MATCHES_PATH, path.DIFF_POINTS_STATS_PATH),
+        (perm_cfg, path.PERMUTED_MATCHES_PATH, path.PERMUTED_STATS_PATH),
+        (opt_cfg, path.OPTIMAL_MATCHES_PATH, path.OPTIMAL_STATS_PATH),
     ]
     for variance_parameters in var_config_read_dir_save_dir:
-        parser.variances.calculate_and_save_var_stats(*variance_parameters)
+        parser.metrics.calculate_and_save_metric_stats(*variance_parameters)
 
     #   Turning Point
     tp_config_read_dir_save_dir = [
-        (real_cfg, path.VARIANCE_STATS_PATH, path.TURNING_POINT_PATH),
-        (diff_cfg, path.DIFF_POINTS_VAR_STATS_PATH, path.DIFF_POINTS_TURN_POINT_PATH),
-        (perm_cfg, path.PERMUTED_VARIANCE_STATS_PATH, path.PERMUTED_TURNING_POINT_PATH),
-        (opt_cfg, path.OPTIMAL_VARIANCE_STATS_PATH, path.OPTIMAL_TURNING_POINT_PATH),
+        (real_cfg, path.STATS_PATH, path.TURNING_POINT_PATH),
+        (diff_cfg, path.DIFF_POINTS_STATS_PATH, path.DIFF_POINTS_TURN_POINT_PATH),
+        (perm_cfg, path.PERMUTED_STATS_PATH, path.PERMUTED_TURNING_POINT_PATH),
+        (opt_cfg, path.OPTIMAL_STATS_PATH, path.OPTIMAL_TURNING_POINT_PATH),
     ]
     for turning_parameters in tp_config_read_dir_save_dir:
         parser.turning_point.calculate_and_save_turning_points(*turning_parameters)
