@@ -28,6 +28,18 @@ def get_kwargs_from_points_per_match(
         func: Callable[[pd.DataFrame], pd.DataFrame]
             Function to calculate the desired metric.
 
+            Input: PointPerMatch (df)
+            Output: pd.DataFrame[
+                index = [
+                    "id" -> pd.Categorical[str]
+                        "{current_name}@/{sport}/{country}/{name-year}/",
+                ]
+                columns = [
+                    "points": float
+                        Metric value
+                ]
+            ]
+
         num_iteration_simulation: tuple[int, int]
             Respectively, number of iterations and number
             of simulations per iteration (batch size).
