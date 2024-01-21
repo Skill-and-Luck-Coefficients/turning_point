@@ -10,12 +10,26 @@ from .calculate_metric import get_kwargs_from_points_per_match
 from .metric import Metric
 
 
-def herfindahl_hirschman_index(standings: pd.DataFrame) -> pd.Series:
+def herfindahl_hirschman_index(
+    standings: pd.Series | pd.DataFrame,
+) -> float | pd.Series:
+    """
+    standings:
+        pd.DataFrame: Returns pd.Series for each column
+        pd.Series: Returns float value
+    """
     normalized_standings = standings / standings.sum()
     return (normalized_standings**2).sum()
 
 
-def normalized_herfindahl_hirschman_index(standings: pd.DataFrame) -> pd.Series:
+def normalized_herfindahl_hirschman_index(
+    standings: pd.Series | pd.DataFrame,
+) -> float | pd.Series:
+    """
+    standings:
+        pd.DataFrame: Returns pd.Series for each column
+        pd.Series: Returns float value
+    """
     # NOTE: not all of these coefficients work the best when we consider the the 3-0 point system
     hhi = herfindahl_hirschman_index(standings)
     inverse_num_teams = 1 / len(standings)
@@ -28,7 +42,14 @@ def _calculate_normalized_hhi_per_id(df: pd.DataFrame) -> pd.DataFrame:
     return rankings.groupby("id", observed=True).apply(nnhi_fn)
 
 
-def herfindahl_index_of_competitive_balance(standings: pd.DataFrame) -> pd.Series:
+def herfindahl_index_of_competitive_balance(
+    standings: pd.Series | pd.DataFrame,
+) -> float | pd.Series:
+    """
+    standings:
+        pd.DataFrame: Returns pd.Series for each column
+        pd.Series: Returns float value
+    """
     hhi = herfindahl_hirschman_index(standings)
     inverse_num_teams = 1 / len(standings)
     return hhi / inverse_num_teams
