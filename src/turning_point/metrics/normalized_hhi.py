@@ -39,7 +39,7 @@ def normalized_herfindahl_hirschman_index(
 def _calculate_normalized_hhi_per_id(df: pd.DataFrame) -> pd.DataFrame:
     rankings = df.groupby(["id", "team"], observed=True).sum()
     nnhi_fn = normalized_herfindahl_hirschman_index
-    return rankings.groupby("id", observed=True).apply(nnhi_fn)
+    return rankings.groupby("id", observed=True).agg(nnhi_fn)
 
 
 def herfindahl_index_of_competitive_balance(
@@ -58,7 +58,7 @@ def herfindahl_index_of_competitive_balance(
 def _calculate_hicb_per_id(df: pd.DataFrame) -> pd.DataFrame:
     rankings = df.groupby(["id", "team"], observed=True).sum()
     hicb_fn = herfindahl_index_of_competitive_balance
-    return rankings.groupby("id", observed=True).apply(hicb_fn)
+    return rankings.groupby("id", observed=True).agg(hicb_fn)
 
 
 @dataclass

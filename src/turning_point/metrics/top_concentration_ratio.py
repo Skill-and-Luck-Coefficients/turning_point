@@ -56,7 +56,7 @@ def normalized_top_x_percent_concentration_ratio(
 def _calculate_normalized_top_x_cr_per_id(df: pd.DataFrame) -> pd.DataFrame:
     rankings = df.groupby(["id", "team"], observed=True).sum()
     top_x_cr_fn = normalized_top_x_percent_concentration_ratio
-    return rankings.groupby("id", observed=True).apply(top_x_cr_fn)
+    return rankings.groupby("id", observed=True).agg(top_x_cr_fn)
 
 
 @dataclass

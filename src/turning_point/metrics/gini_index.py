@@ -40,7 +40,7 @@ def gini(standings: pd.Series | pd.DataFrame) -> float | pd.Series:
 
 def _calculate_gini_index_per_id(df: pd.DataFrame) -> pd.DataFrame:
     rankings = df.groupby(["id", "team"], observed=True).sum()
-    return rankings.groupby("id", observed=True).apply(gini)
+    return rankings.groupby("id", observed=True).agg(gini)
 
 
 @dataclass

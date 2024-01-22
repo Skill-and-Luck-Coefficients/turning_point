@@ -16,13 +16,14 @@ def interquartile_range(standings: pd.Series | pd.DataFrame) -> float | pd.Serie
         pd.DataFrame: Returns pd.Series for each column
         pd.Series: Returns float value
     """
-    return standings.quantile(0.75) - standings.quantile(0.25)
+    quantiles = standings.quantile([0.25, 0.75])
+    return quantiles.loc[0.75] - quantiles.loc[0.25]
 
 
 def _calculate_interquartile_range_per_id(df: pd.DataFrame) -> pd.DataFrame:
     rankings = df.groupby(["id", "team"], observed=True).sum()
     iqr_fn = interquartile_range
-    return rankings.groupby("id", observed=True).apply(iqr_fn)
+    return rankings.groupby("id", observed=True).agg(iqr_fn)
 
 
 @dataclass
