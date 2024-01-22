@@ -11,6 +11,9 @@ from .normalized_hhi import herfindahl_hirschman_index as hhi
 from .normalized_hhi import herfindahl_index_of_competitive_balance as hicb
 from .normalized_hhi import normalized_herfindahl_hirschman_index as nhhi
 from .top_concentration_ratio import ConcentrationRatio
+from .top_concentration_ratio import (
+    fast_normalized_top_x_percent_concentration_ratio as fast_ncr,
+)
 from .top_concentration_ratio import normalized_top_x_percent_concentration_ratio as ncr
 from .top_concentration_ratio import top_x_percent_concentration_ratio as cr
 from .variances import Variances
@@ -36,8 +39,9 @@ __all__ = [
     "hicb",
     "nhhi",
     "ConcentrationRatio",
-    "cr",
+    "fast_ncr",
     "ncr",
+    "cr",
     "Variances",
     "METRIC_MAP",
 ]
