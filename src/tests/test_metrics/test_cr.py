@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -45,6 +46,28 @@ def test_normalized_top_x_percent_concentration_ratio(values: list[pd.DataFrame]
         assert results["points"] == expected
 
 
+def test_fast_normalized_top_x_percent_concentration_ratio(values: list[pd.DataFrame]):
+    expected_values = [
+        0.4 / (1 / 4),
+        0.5238095238095238 / (2 / 6),
+        0.41666666666666667 / (2 / 8),
+    ]
+
+    for value, expected in zip(values, expected_values):
+        results = cr.fast_normalized_top_x_percent_concentration_ratio(value)
+        np.testing.assert_almost_equal(results["points"], expected)
+
+    expected_values = [
+        0.4 / (1 / 4),
+        0.2857142857142857 / (1 / 6),
+        0.41666666666666667 / (2 / 8),
+    ]
+
+    for value, expected in zip(values, expected_values):
+        results = cr.fast_normalized_top_x_percent_concentration_ratio(value, x=0.2)
+        np.testing.assert_almost_equal(results["points"], expected)
+
+
 @pytest.fixture()
 def dataframe():
     df_cols = {
@@ -60,9 +83,11 @@ def test_calculate_normalized_top_x_cr_per_id(dataframe: pd.DataFrame):
     expected_cols = {
         "id": ["1", "2", "3"],
         "points": [
-            cr.normalized_top_x_percent_concentration_ratio(pd.Series([6, 0, 0])),
-            cr.normalized_top_x_percent_concentration_ratio(pd.Series([2, 2, 3, 1])),
-            cr.normalized_top_x_percent_concentration_ratio(pd.Series([0, 3])),
+            cr.fast_normalized_top_x_percent_concentration_ratio(pd.Series([6, 0, 0])),
+            cr.fast_normalized_top_x_percent_concentration_ratio(
+                pd.Series([2, 2, 3, 1])
+            ),
+            cr.fast_normalized_top_x_percent_concentration_ratio(pd.Series([0, 3])),
         ],
     }
     expected = pd.DataFrame(data=expected_cols).set_index("id")

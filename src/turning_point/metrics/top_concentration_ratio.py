@@ -11,13 +11,16 @@ from .metric import Metric
 
 
 def top_x_percent_concentration_ratio(
-    standings: pd.Series | pd.DataFrame, x: float = 0.25
+    standings: pd.Series | pd.DataFrame, x: float = 0.25, sort: bool = False
 ) -> float | pd.Series:
     """
     standings:
         pd.DataFrame: Returns pd.Series for each column
         pd.Series: Returns float value
 
+    sort: bool = False
+        True: must sort each ranking
+        False: rankings are already sorted
     """
     normalized_standings = standings / standings.sum()
     top_x_percent_size = int(len(normalized_standings) * x)
@@ -53,10 +56,30 @@ def normalized_top_x_percent_concentration_ratio(
     return top_X_percent
 
 
+def fast_normalized_top_x_percent_concentration_ratio(
+    standings: pd.Series | pd.DataFrame, x: float = 0.25
+) -> float | pd.Series:
+    """
+    This functions uses .quantile to determine which tournaments are in the top X%.
+    So it is not as accurate.
+
+    standings:
+        pd.DataFrame: Returns pd.Series for each column
+        pd.Series: Returns float value
+    """
+    normalized_standings = standings / standings.sum()
+
+    x_quantile = normalized_standings.quantile(1 - x)
+    top_index = normalized_standings > x_quantile
+
+    normalization = top_index.sum() / len(top_index)
+    return normalized_standings[top_index].sum() / normalization
+
+
 def _calculate_normalized_top_x_cr_per_id(df: pd.DataFrame) -> pd.DataFrame:
     rankings = df.groupby(["id", "team"], observed=True).sum()
-    top_x_cr_fn = normalized_top_x_percent_concentration_ratio
-    return rankings.groupby("id", observed=True).agg(top_x_cr_fn)
+    top_x_cr_fn = fast_normalized_top_x_percent_concentration_ratio
+    return rankings.groupby("id", observed=True).apply(top_x_cr_fn)
 
 
 @dataclass
