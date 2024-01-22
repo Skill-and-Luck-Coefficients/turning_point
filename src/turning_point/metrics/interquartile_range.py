@@ -23,7 +23,7 @@ def interquartile_range(standings: pd.Series | pd.DataFrame) -> float | pd.Serie
 def _calculate_interquartile_range_per_id(df: pd.DataFrame) -> pd.DataFrame:
     rankings = df.groupby(["id", "team"], observed=True).sum()
     iqr_fn = interquartile_range
-    return rankings.groupby("id", observed=True).agg(iqr_fn)
+    return rankings.groupby("id", observed=True).apply(iqr_fn)
 
 
 @dataclass
