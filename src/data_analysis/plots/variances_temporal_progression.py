@@ -156,7 +156,6 @@ def plot_variances_temporal_progression(
         variances = sport_to_var_stats[sport].df
         turning_point = sport_to_tp[sport].df
 
-        nteams = sport_to_num_teams[sport].loc[id_]
         filtered_var: pd.DataFrame = variances.loc[id_].iloc[:last_date]
         filtered_tp: int = turning_point.loc[id_, "turning point"]
 
@@ -172,7 +171,10 @@ def plot_variances_temporal_progression(
         )
         _plot_turning_point_line_one_tourney(ax, filtered_tp)
         _plot_turning_point_text_one_tourney(ax, filtered_tp, **tp_text)
-        _plot_num_teams_text_one_tourney(ax, nteams, filtered_tp, **team_text)
+
+        if sport_to_num_teams is not None:
+            nteams = sport_to_num_teams[sport].loc[id_]
+            _plot_num_teams_text_one_tourney(ax, nteams, filtered_tp, **team_text)
 
     pf.add_xlabels_nth_row(fig, axs, "Matchday", n=-1)
     pf.add_ylabels_to_nth_col(fig, axs, "Competitive Imbalance", n=0)
