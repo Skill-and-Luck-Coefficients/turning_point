@@ -10,7 +10,7 @@
             "should_calculate_it": true,
             "seed": 0,
             "quantile": 0.95,
-            "metric": "variance",
+            "metric": [ "variance", "nhhi", "hicb", "gini", "iqr", "cr" ],
             "parameters": {
                 "num_iteration_simulation": [ 10, 100 ],
                 "winner_type": "winner",
@@ -55,7 +55,7 @@
             "should_create_it": true,
             "seed": 3,
             "parameters": {
-                "types": [ "tp_minimizer", "tp_minimizer_reversed", "tp_maximizer", "tp_maximizer_reversed" ]
+                "types": [ "tp_minimizer", "tp_minimizer_reversed", "tp_maximizer", "tp_maximizer_reversed", "tp_maximizer_random_reversed" ]
             }
         },
         "turning_point": {

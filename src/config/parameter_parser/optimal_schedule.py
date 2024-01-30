@@ -18,7 +18,9 @@ KEY_TO_SCHEDULING_FUNCTION = {
     "tp_maximizer": sch.good_vs_bad_last.create_double_rr,
     "tp_maximizer_reversed": sch.good_vs_bad_last.create_reversed_double_rr,
     "tp_minimizer_random": sch.good_vs_bad_first.create_random_double_rr,
+    "tp_minimizer_random_reversed": sch.good_vs_bad_first.create_random_reversed_double_rr,
     "tp_maximizer_random": sch.good_vs_bad_last.create_random_double_rr,
+    "tp_maximizer_random_reversed": sch.good_vs_bad_last.create_random_reversed_double_rr,
 }
 
 

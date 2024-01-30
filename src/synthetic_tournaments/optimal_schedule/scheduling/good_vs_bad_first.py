@@ -35,7 +35,8 @@ def _create_random_double_rr(
     Randomizes which team play as home/away.
     """
     drr = rr.DoubleRoundRobin.from_team_names(team_names, generate_optimal_schedule)
-    return list(drr.get_full_schedule(num_schedules, "home_away", second_portion))
+    to_randomize = ["home_away", "matches"]
+    return list(drr.get_full_schedule(num_schedules, to_randomize, second_portion))
 
 
 create_random_double_rr = partial(_create_random_double_rr, second_portion="flipped")
