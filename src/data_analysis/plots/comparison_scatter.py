@@ -70,10 +70,28 @@ def plot_comparison_scatter_all_sports_template(
     pearson_corr_kwargs: dict[str, float | str] | None = PEARSON_KWARGS,
     title_as_text_kwargs: dict[str, float | str] | None = TEXT_TITLE_KWARGS,
 ):
-    flat_axs = pf.flatten_axes(axs)
-    col_x, col_y = plot_columns_to_label.keys()
+    """
+    `scatter_plot_func`: dict[str, str] | dict[tuple[str], str]
+        First option (used for same plot for each sport):
+            First entry: x-column
+            Other entry: y-column (one value, same y-column for all)
+        Second option (used for different plots for the same sport):
+            First entry: x-column
+            Other entries: y-columns (one value for each ax in axs)
 
-    for ax, sport in zip(flat_axs, sport_to_tp_comparison):
+            In this case, `sport_to_tp_comparison` should only be a pd.DataFrame
+    """
+    flat_axs = pf.flatten_axes(axs)
+
+    col_x, *cols_y = list(plot_columns_to_label.keys())
+    xlabel, *ylabels = list(plot_columns_to_label.values())
+
+    if len(cols_y) == 1:
+        cols_y = [cols_y[0] for _ in enumerate(flat_axs)]
+    else:
+        sport_to_tp_comparison = {col_y: sport_to_tp_comparison for col_y in cols_y}
+
+    for ax, col_y, sport in zip(flat_axs, cols_y, sport_to_tp_comparison):
         full_x = sport_to_tp_comparison[sport][col_x]
         full_y = sport_to_tp_comparison[sport][col_y]
 
@@ -98,13 +116,17 @@ def plot_comparison_scatter_all_sports_template(
 
         if title_as_text_kwargs is not None:
             t_kwargs = TEXT_TITLE_KWARGS | title_as_text_kwargs
-            ax.text(s=sport.title(), **t_kwargs)
+            ax.text(s=str(sport).title(), **t_kwargs)
         else:
-            ax.set_title(sport.title())
+            ax.set_title(str(sport).title())
 
-    label_x, label_y = plot_columns_to_label.values()
-    pf.add_xlabels_nth_row(fig, axs, label_x, n=-1)
-    pf.add_ylabels_to_nth_col(fig, axs, label_y, n=0)
+    pf.add_xlabels_nth_row(fig, axs, xlabel, n=-1)
+    for ax, ylabel in zip(flat_axs, ylabels):
+        ax.set_ylabel(ylabel)
+        ax.set_title("")
+
+    if len(ylabels) == 1:
+        pf.add_ylabels_to_nth_col(fig, axs, ylabels[0], n=0)
 
 
 def plot_scatter_according_to_line_x_equals_y(
