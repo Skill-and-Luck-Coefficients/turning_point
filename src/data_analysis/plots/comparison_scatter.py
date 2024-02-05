@@ -68,6 +68,7 @@ def plot_comparison_scatter_all_sports_template(
     x_equals_y_line: bool = True,
     linregress: bool = False,
     pearson_corr_kwargs: dict[str, float | str] | None = PEARSON_KWARGS,
+    y_gt_x_percent_kwargs: dict[str, float | str] | None = PEARSON_KWARGS,
     title_as_text_kwargs: dict[str, float | str] | None = TEXT_TITLE_KWARGS,
 ):
     """
@@ -113,6 +114,11 @@ def plot_comparison_scatter_all_sports_template(
             corr_matrix = np.corrcoef(x, y)
             p_kwargs = PEARSON_KWARGS | pearson_corr_kwargs
             ax.text(s=f"Corr: {corr_matrix[0][1]:.2f}", **p_kwargs)
+
+        if y_gt_x_percent_kwargs is not None:
+            y_gt_x = (y > x).mean()
+            ygx_kwargs = PEARSON_KWARGS | y_gt_x_percent_kwargs
+            ax.text(s=f"y > x: {y_gt_x:.2%}", **ygx_kwargs)
 
         if title_as_text_kwargs is not None:
             t_kwargs = TEXT_TITLE_KWARGS | title_as_text_kwargs

@@ -22,6 +22,7 @@ def plot_new_pontuation_system(
         no_difference_margin=no_difference_margin,
         # comparison kwargs
         pearson_corr_kwargs=None,
+        y_gt_x_percent_kwargs=None,
         title_as_text_kwargs=None,
     )
     ax.set_title("")
