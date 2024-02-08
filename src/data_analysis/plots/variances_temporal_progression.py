@@ -12,8 +12,8 @@ from turning_point.metric_stats import ExpandingMetricStats
 from turning_point.normal_coefficient import TurningPoint
 
 COLOR_MARKER_LABEL = {
-    "real": ("red", "X", r"Observed: $V_t$"),
-    "mean": ("darkgreen", "o", r"Expected Simul: $\mu_t$"),
+    "real": ("red", "X", r"Observed ($\mathcal V_t$)"),
+    "mean": ("darkgreen", "o", r"Expected ($\mu_t$)"),
     # "quantile": ("orange", "^", r"95% Simul: $q_t$"),
 }
 
