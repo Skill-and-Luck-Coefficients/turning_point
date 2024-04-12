@@ -1,6 +1,26 @@
 # **Turning Point**
 Repository for calculating turning points.
 
+## **Reproducibility**
+---
+
+**Seeds**: `src/parameters.json` contains the default seeds used.
+
+Sample for tounament match information:
+
+| | | "home" | "away" | "result" | "winner" | "date" | "odds home" | "odds tie" | "odds away" |
+| --- | ---- | ---- | ---- | ---- | ---- | ----- | ----- |     --     |    --- |
+| "id" | "date number" | | |  |  |  |  |  |  |
+| 'acb@/basketball/spain/acb-2010-2011/' | 0 | 'Estudiantes'  | 'Real Madrid' | '79:84' | 'a' | '30.09.2010' | 3.33 |     <not avalaible>     |    1.31 |
+| 'acb@/basketball/spain/acb-2010-2011/' | 1 |  'Real Betis' | 'Joventut Badalona' | '85:80' | 'h	' | '02.10.2010' | 1.31 |     <not avalaible>     |    3.35 |
+
+**Remarks**:
+- 'odds tie' is not required for basketball and volleyball.
+- 'date' is not necessary, only the matchday is ('date number').
+- If 'winner' is provided, 'result' is not necessary for the default turning point calculation (3 points for win, 1 for tie and 0 for loss).
+
+**Download**: csvs containing the exact matches we used are available at [Tournament Matches](https://github.com/Skill-and-Luck-Coefficients/scrape_tournament_matches/tree/main/data)
+
 
 ## **Dependencies**
 ---
