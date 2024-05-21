@@ -11,17 +11,7 @@ from tournament_simulations.data_structures import Matches
 from tournament_simulations.permutations import MatchesPermutations
 
 from .. import types
-
-KEY_TO_SCHEDULING_FUNCTION = {
-    "tp_minimizer": sch.good_vs_bad_first.create_double_rr,
-    "tp_minimizer_reversed": sch.good_vs_bad_first.create_reversed_double_rr,
-    "tp_maximizer": sch.good_vs_bad_last.create_double_rr,
-    "tp_maximizer_reversed": sch.good_vs_bad_last.create_reversed_double_rr,
-    "tp_minimizer_random": sch.good_vs_bad_first.create_random_double_rr,
-    "tp_minimizer_random_reversed": sch.good_vs_bad_first.create_random_reversed_double_rr,
-    "tp_maximizer_random": sch.good_vs_bad_last.create_random_double_rr,
-    "tp_maximizer_random_reversed": sch.good_vs_bad_last.create_random_reversed_double_rr,
-}
+from . import utils
 
 
 def _concat_optimal_schedules_for_all_types(
@@ -54,25 +44,11 @@ def _concat_optimal_schedules_for_all_types(
 
 @log(turning_logger.info)
 def _create_synthetic_matches(
-    filenames: list[str],
-    read_directory: Path,
+    filepath: Path,
     desired_types: types.OptimalScheduleTypes | list[types.OptimalScheduleTypes],
-) -> dict[str, Matches]:
-    filename_to_matches = {}
-
-    for filename in filenames:
-        filepath = read_directory / f"{filename}.csv"
-        if not filepath.exists():
-            turning_logger.warning(f"No file: {filepath}")
-            continue
-
-        matches = Matches(pd.read_csv(filepath))
-        optimal_matches = _concat_optimal_schedules_for_all_types(
-            matches, desired_types
-        )
-        filename_to_matches[filename] = optimal_matches
-
-    return filename_to_matches
+) -> Matches:
+    matches = Matches(pd.read_csv(filepath))
+    return _concat_optimal_schedules_for_all_types(matches, desired_types)
 
 
 def create_and_save_optimal_matches(
@@ -87,12 +63,12 @@ def create_and_save_optimal_matches(
     random.seed(optimal_cfg["seed"])
     nprandom.seed(optimal_cfg["seed"])
 
-    filename_to_matches = _create_synthetic_matches(
+    fn_kwargs = {"desired_types": optimal_cfg["parameters"]["types"]}
+    filename_to_matches = utils.run_for_all_filenames(
+        _create_synthetic_matches,
         config["sports"],
         read_directory,
-        optimal_cfg["parameters"]["types"],
+        **fn_kwargs,
     )
 
-    save_directory.mkdir(parents=True, exist_ok=True)
-    for filename, matches in filename_to_matches.items():
-        matches.df.to_csv(save_directory / f"{filename}.csv")
+    utils.save_filename_to_df(filename_to_matches, save_directory)

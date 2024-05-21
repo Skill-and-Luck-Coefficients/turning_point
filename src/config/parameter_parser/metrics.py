@@ -12,6 +12,7 @@ from tournament_simulations.data_structures import Matches, PointsPerMatch
 from turning_point.metrics import METRIC_MAP
 
 from .. import types
+from . import utils
 
 T = TypeVar("T")
 
@@ -58,50 +59,28 @@ def _get_metric_stats(
 
 @log(turning_logger.info)
 def _calculate_metric_stats(
-    filenames: str | list[str],
-    read_directory: Path,
+    filepath: Path,
     var_parameters: types.TurningPointParameters,
     quantile: float,
     metric: str,
-) -> dict[str, ms.ExpandingMetricStats]:
-    filenames = [filenames] if isinstance(filenames, str) else list(filenames)
-
-    filename_to_var_stats = {}
-
-    for filename in filenames:
-        filepath = read_directory / f"{filename}.csv"
-        if not filepath.exists():
-            turning_logger.warning(f"No file: {filepath}")
-            continue
-
-        matches = Matches(pd.read_csv(filepath))
-        var_stats = _get_metric_stats(matches, quantile, metric, **var_parameters)
-
-        filename_to_var_stats[filename] = var_stats
-
-    return filename_to_var_stats
+) -> ms.ExpandingMetricStats:
+    matches = Matches(pd.read_csv(filepath))
+    return _get_metric_stats(matches, quantile, metric, **var_parameters)
 
 
-def _parse_quantiles_and_seeds(
-    quantiles: float | list[float], seeds: int | list[int]
-) -> tuple[list[float], list[int]]:
-    if not isinstance(quantiles, list):
-        quantiles = [quantiles]
-
-    if not isinstance(seeds, list):
-        seeds = [seeds]
-
+def _extend_seeds_as_quantiles(
+    quantiles: list[float],
+    seeds: list[int],
+) -> list[int]:
+    """
+    Make `seeds` have the same length as `quantiles`
+    """
     size_diff = len(quantiles) - len(seeds)
+
     if size_diff > 0:
         seeds = seeds + [seeds[0] for _ in range(size_diff)]
 
-    return quantiles, seeds
-
-
-def _parse_parameter(parameter: T | list[T]) -> list[T]:
-    if not isinstance(parameter, list):
-        parameter = [parameter]
-    return parameter
+    return seeds
 
 
 def calculate_and_save_metric_stats(
@@ -114,26 +93,28 @@ def calculate_and_save_metric_stats(
     if not var_config["should_calculate_it"]:
         return
 
-    quantiles, seeds = _parse_quantiles_and_seeds(
-        var_config["quantile"], var_config["seed"]
-    )
-    metrics = _parse_parameter(var_config["metric"])
+    metrics = utils.parse_value_or_iterable(var_config["metric"])
+
+    quantiles = utils.parse_value_or_iterable(var_config["quantile"])
+    seeds = utils.parse_value_or_iterable(var_config["seed"])
+    seeds = _extend_seeds_as_quantiles(quantiles, seeds)
 
     for metric in metrics:
         for seed, quantile in zip(seeds, quantiles):
             random.seed(seed)
             nprandom.seed(seed)
 
-            filename_to_var_stats = _calculate_metric_stats(
+            fn_kwargs = {
+                "var_parameters": config["turning_point"]["parameters"],
+                "quantile": quantile,
+                "metric": metric,
+            }
+            filename_to_var_stats = utils.run_for_all_filenames(
+                _calculate_metric_stats,
                 config["sports"],
                 read_directory,
-                config["turning_point"]["parameters"],
-                quantile,
-                metric,
+                **fn_kwargs,
             )
 
             save_dir = save_directory / str(quantile) / metric
-            save_dir.mkdir(parents=True, exist_ok=True)
-
-            for filename, var_stats in filename_to_var_stats.items():
-                var_stats.df.to_csv(save_dir / f"{filename}.csv")
+            utils.save_filename_to_df(filename_to_var_stats, save_dir)
