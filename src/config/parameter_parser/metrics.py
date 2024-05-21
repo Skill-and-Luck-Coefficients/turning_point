@@ -1,6 +1,5 @@
 import random
 from pathlib import Path
-from typing import TypeVar
 
 import numpy.random as nprandom
 import pandas as pd
@@ -13,8 +12,6 @@ from turning_point.metrics import METRIC_MAP
 
 from .. import types
 from . import utils
-
-T = TypeVar("T")
 
 
 def _get_metric_stats(

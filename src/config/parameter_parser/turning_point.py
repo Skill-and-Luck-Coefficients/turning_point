@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import TypeVar
 
 import pandas as pd
 
@@ -9,8 +8,6 @@ from logs import log, turning_logger
 
 from .. import types
 from . import utils
-
-T = TypeVar("T")
 
 
 @log(turning_logger.info)
