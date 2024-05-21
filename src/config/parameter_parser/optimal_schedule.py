@@ -34,7 +34,7 @@ def _concat_optimal_schedules_for_all_types(
     all_tournaments: list[pd.DataFrame] = []
 
     for type_ in desired_types:
-        scheduler_factory = Scheduler(matches, KEY_TO_SCHEDULING_FUNCTION[type_])
+        scheduler_factory = Scheduler(matches, sch.KEY_TO_SCHEDULING_FUNCTION[type_])
         schedulers = {
             "current": scheduler_factory.get_current_year_scheduler(),
             "previous": scheduler_factory.get_previous_year_scheduler(),
