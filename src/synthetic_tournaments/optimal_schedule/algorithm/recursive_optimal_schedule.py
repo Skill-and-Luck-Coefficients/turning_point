@@ -78,12 +78,27 @@ def generate_recursive_optimal_schedule(rankings: int | Sequence[float]) -> list
 
     ----
     Parameters:
-        rankings: int | Sequence[int]
+        rankings: int | Sequence[float]
             int: Number of teams.
                 Equivalent to list(range(rankings)).
 
             Sequence[float]: Team rankings.
                 Only order matters, the smallest the number the better the team.
+
+                Remark: Results consider rankings sorted in ascending order!
+
+    ----
+    Returns:
+        list[
+            tuple[int, int]  # Matches (tuple of identifiers)
+        ]
+            Team identifier: team ranking
+                Index for their respective (ascending-sorted) `rankings`.
+                    Best team: 0
+                    Second best: 1
+                    ...
+                    Worst team: number_of_teams - 1
+
     ----
     Example:
         rankings: 6
