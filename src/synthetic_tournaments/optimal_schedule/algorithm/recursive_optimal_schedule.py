@@ -1,11 +1,31 @@
 from itertools import zip_longest
-from typing import Any, Sequence
+from typing import Sequence
 
 from .utils import Round, split_in_middle
 
 
+def _parse_groups(
+    group_one: Sequence[int], group_two: Sequence[int]
+) -> tuple[Sequence[int], Sequence[int]]:
+    """
+    ----
+    Returns:
+        tuple[
+            list[int],  # Sorted smallest group
+            list[int],  # Sorted largest group
+        ]
+    """
+    smallest = sorted(group_one)
+    largest = sorted(group_two)
+
+    if len(largest) < len(smallest):
+        largest, smallest = smallest, largest
+
+    return smallest, largest
+
+
 def generate_optimal_schedule_between_groups(
-    group_one_teams: Sequence[Any], group_two_teams: Sequence[Any]
+    group_one_teams: Sequence[int], group_two_teams: Sequence[int]
 ) -> list[Round]:
     """
     Given two groups, generate the schedule between them.
@@ -28,10 +48,7 @@ def generate_optimal_schedule_between_groups(
     if not group_one_teams or not group_two_teams:
         return []
 
-    smallest = sorted(group_one_teams)
-    largest = sorted(group_two_teams)
-    if len(largest) < len(smallest):
-        largest, smallest = smallest, largest
+    smallest, largest = _parse_groups(group_one_teams, group_two_teams)
 
     largest = list(reversed(largest))
     initial_largest = largest.copy()
@@ -54,23 +71,22 @@ def generate_optimal_schedule_between_groups(
     return schedule
 
 
-def generate_recursive_optimal_schedule(
-    teams: int | Sequence[Any],
-) -> list[Round]:
+def generate_recursive_optimal_schedule(rankings: int | Sequence[float]) -> list[Round]:
     """
-    Given a list of teams, schedule an entire tournament by splitting
+    Given a list of rankings, schedule an entire tournament by splitting
     the list in half and applying `generate_optimal_schedule_between_groups`.
 
     ----
     Parameters:
-        teams: int | Sequence[int]
-            Teams identifiers (integers)
+        rankings: int | Sequence[int]
+            int: Number of teams.
+                Equivalent to list(range(rankings)).
 
-            int: teams being an integer is equivalent to list(range(teams)).
-
+            Sequence[float]: Team rankings.
+                Only order matters, the smallest the number the better the team.
     ----
     Example:
-        teams: [0, 1, 2, 3, 4, 5]
+        rankings: 6
 
         Result:
             [
@@ -82,20 +98,21 @@ def generate_recursive_optimal_schedule(
                 ((1, 2), (4, 5)),
             ]
     """
-    if isinstance(teams, int):
-        teams = list(range(teams))
+    if isinstance(rankings, int):
+        rankings = list(range(rankings))
 
-    if len(teams) <= 1:
+    if len(rankings) <= 1:
         return [tuple()]
 
-    teams = sorted(teams)
-    first_half, second_half = split_in_middle(teams)
+    rankings = sorted(rankings)
+    first_half, second_half = split_in_middle(rankings)
 
     schedule: list[Round] = []
     schedule.extend(generate_optimal_schedule_between_groups(first_half, second_half))
 
     first_half_rounds = generate_recursive_optimal_schedule(first_half)
     second_half_rounds = generate_recursive_optimal_schedule(second_half)
+
     both_halves = zip_longest(first_half_rounds, second_half_rounds, fillvalue=tuple())
     joined_on_rounds: list[Round] = [first + second for first, second in both_halves]
     schedule.extend(joined_on_rounds)

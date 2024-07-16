@@ -11,7 +11,6 @@ def test_generate_optimal_schedule_between_groups():
         ([0], [1]),
         ([0, 1], [2, 3]),
         ([0, 2], [3, 1]),
-        (["0", "2"], ["3", "1"]),
         ([0, 1, 2], [3, 4, 5]),
     ]
 
@@ -22,7 +21,6 @@ def test_generate_optimal_schedule_between_groups():
         [((0, 1),)],
         [((0, 3), (1, 2)), ((0, 2), (1, 3))],
         [((0, 3), (1, 2)), ((0, 1), (2, 3))],
-        [(("0", "3"), ("1", "2")), (("0", "1"), ("2", "3"))],
         [((0, 5), (1, 4), (2, 3)), ((0, 4), (1, 3), (2, 5)), ((0, 3), (1, 5), (2, 4))],
     ]
 
@@ -44,7 +42,7 @@ def test_generate_optimal_schedule_between_groups_determinism():
 
 
 def test_generate_optimal_schedule():
-    parameters = [-1, 0, 1, 2, 3, 4, 5, 6, ["a", "b", "c", "d"]]
+    parameters = [-1, 0, 1, 2, 3, 4, 5, 6, [0.1, 0.2, 0.3]]
 
     all_expected = [
         [tuple()],
@@ -69,7 +67,7 @@ def test_generate_optimal_schedule():
             ((0, 1), (3, 4)),
             ((1, 2), (4, 5)),
         ],
-        [(("a", "d"), ("b", "c")), (("a", "c"), ("b", "d")), (("a", "b"), ("c", "d"))],
+        [((0.1, 0.3),), ((0.1, 0.2),), ((0.2, 0.3),)],
     ]
 
     for parameter, expected in zip(parameters, all_expected):
