@@ -54,7 +54,7 @@ def generate_optimal_schedule_between_groups(
     return schedule
 
 
-def generate_optimal_schedule(
+def generate_recursive_optimal_schedule(
     teams: int | Sequence[Any],
 ) -> list[Round]:
     """
@@ -94,8 +94,8 @@ def generate_optimal_schedule(
     schedule: list[Round] = []
     schedule.extend(generate_optimal_schedule_between_groups(first_half, second_half))
 
-    first_half_rounds = generate_optimal_schedule(first_half)
-    second_half_rounds = generate_optimal_schedule(second_half)
+    first_half_rounds = generate_recursive_optimal_schedule(first_half)
+    second_half_rounds = generate_recursive_optimal_schedule(second_half)
     both_halves = zip_longest(first_half_rounds, second_half_rounds, fillvalue=tuple())
     joined_on_rounds: list[Round] = [first + second for first, second in both_halves]
     schedule.extend(joined_on_rounds)

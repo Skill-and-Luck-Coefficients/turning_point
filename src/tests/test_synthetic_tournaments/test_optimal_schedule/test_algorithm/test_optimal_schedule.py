@@ -1,6 +1,6 @@
 from random import sample
 
-import synthetic_tournaments.optimal_schedule.algorithm.optimal_schedule as opt
+import synthetic_tournaments.optimal_schedule.algorithm.recursive_optimal_schedule as opt
 
 
 def test_generate_optimal_schedule_between_groups():
@@ -73,16 +73,16 @@ def test_generate_optimal_schedule():
     ]
 
     for parameter, expected in zip(parameters, all_expected):
-        assert opt.generate_optimal_schedule(parameter) == expected
+        assert opt.generate_recursive_optimal_schedule(parameter) == expected
 
 
 def test_generate_optimal_schedule_determinism():
     for integer in range(20):
-        expected = opt.generate_optimal_schedule(integer)
+        expected = opt.generate_recursive_optimal_schedule(integer)
 
         list_teams = list(range(integer))
-        assert expected == opt.generate_optimal_schedule(list_teams)
+        assert expected == opt.generate_recursive_optimal_schedule(list_teams)
 
         # Is this desired behaviour?
         random_list = sample(list_teams, k=len(list_teams))
-        assert expected == opt.generate_optimal_schedule(random_list)
+        assert expected == opt.generate_recursive_optimal_schedule(random_list)

@@ -1,13 +1,14 @@
 """
 Biggest strength difference (average per round) happens at the beginning.
 """
+
 from functools import partial
 from typing import Sequence
 
 import tournament_simulations.schedules.round_robin as rr
 from tournament_simulations.schedules import Round
 
-from ..algorithm import generate_optimal_schedule
+from ..algorithm import generate_recursive_optimal_schedule
 
 
 def _create_double_rr(
@@ -17,7 +18,9 @@ def _create_double_rr(
     Symmetric schedule: second portion is the first one with
     (home, away) matches as (away, home).
     """
-    drr = rr.DoubleRoundRobin.from_team_names(team_names, generate_optimal_schedule)
+    drr = rr.DoubleRoundRobin.from_team_names(
+        team_names, generate_recursive_optimal_schedule
+    )
     return list(drr.get_full_schedule(num_schedules, None, second_portion))
 
 
@@ -34,7 +37,9 @@ def _create_random_double_rr(
 
     Randomizes which team play as home/away.
     """
-    drr = rr.DoubleRoundRobin.from_team_names(team_names, generate_optimal_schedule)
+    drr = rr.DoubleRoundRobin.from_team_names(
+        team_names, generate_recursive_optimal_schedule
+    )
     to_randomize = ["home_away", "matches"]
     return list(drr.get_full_schedule(num_schedules, to_randomize, second_portion))
 
