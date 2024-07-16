@@ -7,7 +7,7 @@ from .utils import Round
 
 
 def _create_weighted_graph(
-    strengths: Iterable[float], strengths_to_skill_diff: Callable[[float, float], float]
+    strengths: Iterable[float], skill_diff_fn: Callable[[float, float], float]
 ) -> nx.Graph:
     """
     Weights: skill discrepancy between the teams.
@@ -16,7 +16,7 @@ def _create_weighted_graph(
 
     matches = combinations(team_ids, r=2)
     matches_and_skill_diff = (
-        (home, away, strengths_to_skill_diff(strengths[home], strengths[away]))
+        (home, away, skill_diff_fn(strengths[home], strengths[away]))
         for home, away in matches
     )
 
@@ -42,8 +42,7 @@ def _sort_round(graph: nx.Graph, matches: Iterable[tuple[int, int]]):
 
 def generate_optimal_graph_schedule(
     strengths: int | Sequence[float],
-    strengths_to_skill_diff: Callable[[float, float], float] = lambda x, y: abs(x - y)
-    ** 2,
+    skill_diff_fn: Callable[[float, float], float] = lambda x, y: (x - y) ** 2,
 ) -> list[Round]:
     """
     Greedy algorithm that finds the maximum skill discrepancy between pairs of teams and se
@@ -56,7 +55,7 @@ def generate_optimal_graph_schedule(
             Iterable[float]: Team strengths.
                 Remark: Results consider strengths sorted in descending order!
 
-        strengths_to_skill_diff: Callable[
+        skill_diff_fn: Callable[
             [float, float],  # Strenghts: [strength of the best team, strength of the other team]
             float            # Skill Discrepancy (non-negative)
         ]
@@ -81,7 +80,7 @@ def generate_optimal_graph_schedule(
         return [tuple()]
 
     strengths = sorted(strengths, reverse=True)
-    graph = _create_weighted_graph(strengths, strengths_to_skill_diff)
+    graph = _create_weighted_graph(strengths, skill_diff_fn)
 
     schedule = []
 
