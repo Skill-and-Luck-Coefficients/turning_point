@@ -55,7 +55,16 @@
             "should_create_it": true,
             "seed": 3,
             "parameters": {
-                "types": [ "tp_minimizer", "tp_minimizer_reversed", "tp_maximizer", "tp_maximizer_reversed", "tp_maximizer_random_reversed" ]
+                "types": {
+                    "graph": {
+                        "tp_minimizer": ["mirrored", "reversed"],
+                        "tp_maximizer": ["mirrored", "reversed", "random_reversed"]
+                    },
+                    "recursive": {
+                        "tp_minimizer": ["mirrored", "reversed"],
+                        "tp_maximizer": ["mirrored", "reversed", "random_reversed"]
+                    }
+                }
             }
         },
         "turning_point": {

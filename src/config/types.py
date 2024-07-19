@@ -1,8 +1,14 @@
 from typing import Literal, Mapping, TypedDict
 
 Sports = list[str]
-OptimalScheduleTypes = Literal[
-    "tp_minimizer", "tp_maximizer", "tp_minimizer_random", "tp_maximizer_random"
+
+AlgType = Literal["graph", "recursive"]
+TPType = Literal["tp_minimizer", "tp_maximizer"]
+ScheduleType = Literal[
+    "mirrored",
+    "reversed",
+    "random_mirrored",
+    "random_reversed",
 ]
 
 
@@ -76,12 +82,18 @@ class PermutedConfig(TypedDict):
     turning_point: TurningPointConfig
 
 
+OptimalMatchesTypeParameter = dict[
+    AlgType,
+    dict[TPType, ScheduleType | list[ScheduleType]],
+]
+
+
 class OptimalMatchesParameters(TypedDict):
     """
-    types: OptimalScheduleTypes | list[OptimalScheduleTypes]
+    types: dict[, OptimalMatchesTPParameter]
     """
 
-    types: OptimalScheduleTypes | list[OptimalScheduleTypes]
+    types: OptimalMatchesTypeParameter
 
 
 class OptimalMatchesConfig(TypedDict):

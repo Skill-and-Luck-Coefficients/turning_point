@@ -2,7 +2,6 @@
 Repository for calculating turning points.
 
 ## **Reproducibility**
----
 
 **Seeds**: `src/parameters.json` contains the default seeds used.
 
@@ -23,7 +22,6 @@ Sample for tounament match information:
 
 
 ## **Dependencies**
----
 
 ### **Submodules**
 
@@ -72,8 +70,21 @@ $ python3 -m build
 $ python3 -m pip install dist/*.whl
 ```
 
+### **Run**
+
+**Turning point calculation:**
+- Place the matches in its expected directory: [Paths](#paths).
+- Update the configuration if necessary: [Configuration](#configuration).
+- Run: 
+```
+$ cd src
+$ python create_dataset.py
+```
+
+**Graphs/Results:**
+After creating the dataset, run the desired notebook.
+
 ## **Tournaments and Coefficients**
----
 
 ### **Matches**
 
@@ -125,7 +136,6 @@ Date (or match) after which the tournament can't be considered random anymore.
 
 
 ## **Dataset**
----
 
 ### **Paths**
 All default paths are defined in [`src/config/dataset_paths.py`](https://github.com/EstefanoB/turning_point/blob/main/src/config/dataset_paths.py).
@@ -134,24 +144,8 @@ Directory for different quantiles and metrics are of the form: "{default}/{quant
 
 Filename for a sport should be `f"{sport}.csv"`.
 
-### **Creation**
-
-Analysis can be done using files in `src/`.
-
-You should move to `src/` before running scripts.
-
-- [`create_dataset.py`](https://github.com/EstefanoB/turning_point/blob/main/src/create_dataset.py)
-    - Create permutation if necessary.
-    - Calculate turning point if desired.
-- [`plots.ipynb`](https://github.com/EstefanoB/turning_point/blob/main/src/plots.ipynb)
-    - Generate all images
-- [`parameters.json`](https://github.com/EstefanoB/turning_point/blob/main/src/parameters.json)
-    - Configuration for creating dataset.
-    - See [Configuration Section](#configuration) for details.
-
 ## **Configuration**
----
-Default values are in [`parameters.json`](https://github.com/EstefanoB/turning_point/blob/main/src/parameters.json).
+Default values are in [`src/parameters.json`](https://github.com/EstefanoB/turning_point/blob/main/src/parameters.json).
 
 - **sports**
     - List of strings
@@ -183,18 +177,22 @@ Default values are in [`parameters.json`](https://github.com/EstefanoB/turning_p
 - **metric**
     - str | Iterable[str]
     - Which metric should be used.
-    - Options: See https://github.com/EstefanoB/turning_point/blob/main/src/turning_point/metrics/__init__.py
+    - Options: See https://github.com/EstefanoB/turning_point/blob/main/src/turning_point/metrics/
 - **types**
-    - In OPTIMAL_SCHEDULE["matches"]["parameters"]
-    - One of the values (strings) below, or a list of them.
-        - "tp_minimizer": schedule that minimizes the turning point
-            - Deterministic: In the first time two teams face each other, the best one will play as home-team.
-        - "tp_maximizer": schedule that maximizes the turning point
-            - Deterministic: In the first time two teams face each other, the worst one will play as home-team.
-        - "tp_minimizer_random": schedule that minimizes the turning point
-            - Non-Deterministic: In the first time two teams face each other, the home-team will be chosen randomly.
-        - "tp_maximizer_random": schedule that maximizes the turning point
-            - Non-Deterministic: In the first time two teams face each other, the home-team will be chosen randomly.
+    - dict[str, dict[str, str | list[str]]]
+    - Keys: 
+        - Options: "graph", "recurvise"
+        - Which optimal algorithm should be used
+    - Values: dict[str, str | list[str]]
+        - Keys: 
+            - Options: "tp_maximizer", "tp_minimizer"
+            - Which optimization should be run: increase (maximizer) or descrease (minimizer) perceived balance.
+        - Values: str | list[str]
+            - Options:
+                - "mirrored": Second turn will be a mirrored version of the first
+                - "reversed": Second portion/turn will have the opposite order. The last match to happen in the first turn will be the first to happen in the second.
+                - "random_mirrored": Similar to mirrored, but which team plays as home/away in all first turn matches is randomized.
+                - "random_reversed": Similar to reversed, but which team plays as home/away in all first turn matches is randomized.
 
 ## **Licensing**
 ---
