@@ -25,7 +25,7 @@ def _create_weighted_graph(
     return graph
 
 
-def _sort_round(graph: nx.Graph, matches: Iterable[tuple[int, int]]):
+def _sort_round(graph: nx.Graph, matches: Round):
     """
     Sort priority:
         - Largest skill discrepancy
@@ -63,8 +63,10 @@ def generate_optimal_graph_schedule(
 
     ----
     Returns:
-        list[
-            tuple[int, int]  # Matches (tuple of identifiers)
+        list[                    # Schedule
+            tuple[               # Round
+                tuple[int, int]  # Match (tuple of identifiers)
+            ]
         ]
             Team identifier: team strength ranking
                 Index for their respective (descending-sorted) `strengths`.
