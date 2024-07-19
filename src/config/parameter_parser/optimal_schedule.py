@@ -89,7 +89,7 @@ def _concat_optimal_schedules_for_all_types(
 ) -> Matches:
     all_tournaments: list[pd.DataFrame] = []
 
-    for id_, scheduling_fn in _flat_iter_scheduling_fns_parameter(desired_types):
+    for type_id, scheduling_fn in _flat_iter_scheduling_fns_parameter(desired_types):
         scheduler_factory = Scheduler(matches, scheduling_fn)
         schedulers = {
             "current": scheduler_factory.get_current_year_scheduler(),
@@ -101,7 +101,7 @@ def _concat_optimal_schedules_for_all_types(
             filtered_matches = Matches(matches.df.loc[scheduler.id_to_parameters.index])
             permutations_creator = MatchesPermutations(filtered_matches, scheduler)
 
-            id_ = f"{id_}-{scheduler_type}"
+            id_ = f"{type_id}-{scheduler_type}"
             permuted_df = permutations_creator.create_n_permutations([id_]).df
             all_tournaments.append(permuted_df)
 
