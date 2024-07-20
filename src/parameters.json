@@ -57,11 +57,11 @@
             "parameters": {
                 "types": {
                     "graph": {
-                        "tp_minimizer": ["mirrored", "reversed"],
+                        "tp_minimizer": ["mirrored"],
                         "tp_maximizer": ["mirrored", "reversed", "random_reversed"]
                     },
                     "recursive": {
-                        "tp_minimizer": ["mirrored", "reversed"],
+                        "tp_minimizer": ["mirrored"],
                         "tp_maximizer": ["mirrored", "reversed", "random_reversed"]
                     }
                 }
@@ -97,6 +97,48 @@
                     "2:3": [ 1, 2 ],
                     "1:3": [ 0, 3 ], "0:3": [ 0, 3 ], "0:3 AWA.": [ 0, 3 ], "0:3 WO.": [ 0, 3 ]
                 }
+            }
+        }
+    },
+    "BRADLEY_TERRY": {
+        "sports": [
+            "first",
+            "second",
+            "third"
+        ],
+        "matches": {
+            "should_create_it": true,
+            "seed": 6,
+            "parameters": {
+                "first": {
+                    "strengths": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                    "n_different_results": 25,
+                    "n_permutations_per_result": 500,
+                    "number_of_drr": 2
+                },
+                "second": {
+                    "strengths": [0.25, 0.25, 1, 1, 1, 1, 1, 1, 4, 4],
+                    "n_different_results": 25,
+                    "n_permutations_per_result": 500,
+                    "number_of_drr": 2
+                },
+                "third": {
+                    "strengths": [0.1111111111111111, 0.1111111111111111, 1, 1, 1, 1, 1, 1, 9, 9],
+                    "n_different_results": 25,
+                    "n_permutations_per_result": 500,
+                    "number_of_drr": 2
+                }
+            }
+        },
+        "turning_point": {
+            "should_calculate_it": true,
+            "seed": 7,
+            "quantile": 0.95,
+            "metric": "variance",
+            "parameters": {
+                "num_iteration_simulation": [ 10, 100 ],
+                "winner_type": "winner",
+                "winner_to_points": { "h": [ 3, 0 ], "d": [ 1, 1 ], "a": [ 0, 3 ] }
             }
         }
     }

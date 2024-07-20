@@ -149,7 +149,7 @@ Default values are in [`src/parameters.json`](https://github.com/EstefanoB/turni
 
 - **sports**
     - List of strings
-    - Sports which should be considered.
+    - Sports/filenames which should be considered.
     - As mentioned in [Paths Section](#paths), filename for a sport is `f"{sport}.csv"`
 - **should_<...>_it**
     - Boolen value
@@ -178,7 +178,7 @@ Default values are in [`src/parameters.json`](https://github.com/EstefanoB/turni
     - str | Iterable[str]
     - Which metric should be used.
     - Options: See https://github.com/EstefanoB/turning_point/blob/main/src/turning_point/metrics/
-- **types**
+- **types** : OPTIMAL_SCHEDULE["matches"]["parameters"]
     - dict[str, dict[str, str | list[str]]]
     - Keys: 
         - Options: "graph", "recurvise"
@@ -193,6 +193,18 @@ Default values are in [`src/parameters.json`](https://github.com/EstefanoB/turni
                 - "reversed": Second portion/turn will have the opposite order. The last match to happen in the first turn will be the first to happen in the second.
                 - "random_mirrored": Similar to mirrored, but which team plays as home/away in all first turn matches is randomized.
                 - "random_reversed": Similar to reversed, but which team plays as home/away in all first turn matches is randomized.
+- **parameters**: BRADLEY_TERRY["matches"]
+    - dict[str, dict[str, values]]
+        - Key: str (corresponding filename/sport)
+        - dict[str, values]
+            - "strengths": list[float]
+                - Teams strenghts
+            - "n_different_results": int
+                - Given a set of team strengths, how many simulations should be run.
+            - "n_permutations_per_result": int
+                - How many permutations should compose a simulations for each strength.
+            - "number_of_drr": int
+                - Number of double round-robin schedules to compose a single permutation.
 
 ## **Licensing**
 ---

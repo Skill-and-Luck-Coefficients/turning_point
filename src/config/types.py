@@ -120,6 +120,44 @@ class OptimalConfig(TypedDict):
     turning_point: TurningPointConfig
 
 
+class BradleyTerryMatchesParameters(TypedDict):
+    """
+    strengths: list[float]
+    n_different_results: int
+    n_permutations_per_result: int
+    number_of_drr: int
+    """
+
+    strengths: list[float]
+    n_different_results: int
+    n_permutations_per_result: int
+    number_of_drr: int
+
+
+class BradleyTerryMatchesConfig(TypedDict):
+    """
+    should_create_it: bool
+    seed: int
+    parameters: dict[str, BradleyTerryMatchesParameters]
+    """
+
+    should_create_it: bool
+    seed: int
+    parameters: dict[str, BradleyTerryMatchesParameters]
+
+
+class BradleyTerryConfig(TypedDict):
+    """
+    sports: Sports
+    matches: BradleyTerryMatchesConfig
+    turning_point: TurningPointConfig
+    """
+
+    sports: Sports
+    matches: BradleyTerryMatchesConfig
+    turning_point: TurningPointConfig
+
+
 class ConfigurationType(TypedDict):
     """
     REAL_MATCHES: RealConfig
@@ -134,3 +172,4 @@ class ConfigurationType(TypedDict):
     OPTIMAL_SCHEDULE: OptimalConfig
     DIFFERENT_POINT_SYSTEM: RealConfig
     DIFFERENT_QUANTILE: RealConfig
+    BRADLEY_TERRY: BradleyTerryConfig
