@@ -4,9 +4,8 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
-import tournament_simulations.schedules.round_robin as ts_rr
+from synthetic_tournaments.bradley_terry import simulate_bradley_terry_tourney
 from tournament_simulations.data_structures import Matches
-from tournament_simulations.schedules import convert_list_of_rounds_to_dataframe
 from turning_point.metric_stats import ExpandingMetricStats
 from turning_point.normal_coefficient import TurningPoint
 
@@ -23,29 +22,6 @@ def _set_seed(seed: int):
 
 def _swap_column_levels(df: pd.DataFrame) -> pd.DataFrame:
     return df.swaplevel(0, 1, "columns").sort_index(axis="columns")
-
-
-def _get_winner(
-    matches: pd.DataFrame,
-    strengths: list[float],
-) -> pd.Series:
-    strengths_ = dict(enumerate(strengths))
-    home_skill_per_match = matches["home"].map(strengths_)
-    away_skill_per_match = matches["away"].map(strengths_)
-
-    prob_home_win = home_skill_per_match / (home_skill_per_match + away_skill_per_match)
-    uniform_values = np.random.random(size=len(matches))
-    return (uniform_values <= prob_home_win).map({True: "h", False: "a"})
-
-
-def _create_schedule(
-    strengths: list[float], label: str, number_of_tournaments: int
-) -> pd.DataFrame:
-    drr = ts_rr.DoubleRoundRobin.from_num_teams(len(strengths))
-    schedule = drr.get_full_schedule(number_of_tournaments)
-    matches_df = convert_list_of_rounds_to_dataframe(schedule, label)
-    matches_df["winner"] = _get_winner(matches_df, strengths)
-    return matches_df
 
 
 def run_bradley_terry_simulations(
@@ -72,10 +48,14 @@ def run_bradley_terry_simulations(
 
     for seed_, num_simulation in zip(seeds, num_simulations_):
         _set_seed(seed_)
-        matches_df_list = [
-            _create_schedule(strength, f"bradley_terry/{label}", number_of_tournaments)
+        matches_df_list = (
+            simulate_bradley_terry_tourney(
+                strength,
+                label=f"bradley_terry/{label}",
+                number_of_drr=number_of_tournaments,
+            ).df
             for label, strength in strengths.items()
-        ]
+        )
         matches = Matches(pd.concat(matches_df_list))
 
         _set_seed(seed_)
