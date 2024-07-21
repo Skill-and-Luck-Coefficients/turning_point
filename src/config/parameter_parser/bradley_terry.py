@@ -90,7 +90,7 @@ def _create_bt_permutations(
 
 
 def create_and_save_bradltey_terry_matches(
-    config: types.OptimalConfig,
+    config: types.BradleyTerryConfig,
     save_directory: Path,
 ) -> None:
     bt_cfg = config["matches"]
