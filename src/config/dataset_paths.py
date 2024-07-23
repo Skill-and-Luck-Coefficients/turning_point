@@ -22,4 +22,4 @@ OPTIMAL_STATS_PATH = DATA_PATH / "stats/optimal/"
 BT_STATS_PATH = DATA_PATH / "stats/bradley_terry/"
 
 # Where to save plots
-PLOT_PATH = DATA_PATH / "images/"
+METRIC_PLOT_PATH = DATA_PATH / "metric_images/"
