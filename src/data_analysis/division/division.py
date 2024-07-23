@@ -83,3 +83,34 @@ class Division:
         expanded_division = self.df.loc[to_expand_index]
         mask_index = expanded_division["division"].isin(set(division))
         return id_index[mask_index].unique().to_list()
+
+    def filter_divisions(
+        self, sport_to_df: dict[str, pd.DataFrame], division: int | list[int]
+    ) -> dict[str, pd.DataFrame]:
+        """
+        Selects tournaments ids in `id_index` that are of the required `division`.
+
+        ----
+        Parameters:
+            sport_to_df: dict[str, pd.DataFrame]
+                Maps a key to each dataframe to be filtered.
+
+                pd.DataFrame[
+                    index:
+                         Must contain an index level named "id". Valid formats:
+                            f"{tournament_name}@/{sport}/{country}/{current_name}-{year}"
+                            f"{tournament_name}@/{sport}/{country}/{current_name}-{year}@{other_identifier}"
+                ]
+
+            division: int | list[int]
+                Desired divisions
+
+        -----
+        Returns:
+            dict[str, pd.DataFrame]
+                Maps the key to its filtered DataFrame
+        """
+        return {
+            sport: df.loc[self.filter_division_in_index(df, division)]
+            for sport, df in sport_to_df.items()
+        }
