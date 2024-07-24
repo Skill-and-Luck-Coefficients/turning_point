@@ -1,6 +1,5 @@
+import numpy as np
 import pandas as pd
-
-from turning_point.normal_coefficient import TurningPoint
 
 
 def _get_balance_increase_stats(
@@ -9,11 +8,17 @@ def _get_balance_increase_stats(
     tp_column: str = "%turning point",
 ) -> pd.DataFrame:
     tp_df = df[tp_column]
+
+    if tp_column == "%turning point":
+        tp_df = tp_df.replace({np.inf: 1})
+
     increase = tp_df[optimal_tp_columns] - tp_df["normal"].to_frame().to_numpy()
 
     return pd.DataFrame(
         {
+            "size": len(increase),
             "proportion increase > 0": (increase > 0).mean(),
+            "proportion increase < 0": (increase < 0).mean(),
             "median increase": (increase.median()),
             "avg increase": (increase.mean()),
             "median increase [increase > 0]": (increase[increase > 0].median()),
