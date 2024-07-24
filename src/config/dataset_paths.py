@@ -23,3 +23,4 @@ BT_STATS_PATH = DATA_PATH / "stats/bradley_terry/"
 
 # Where to save plots
 METRIC_PLOT_PATH = DATA_PATH / "metric_images/"
+CONTROLLING_PLOT_PATH = DATA_PATH / "controlling_images/"
