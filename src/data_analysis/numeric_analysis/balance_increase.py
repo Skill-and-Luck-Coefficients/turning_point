@@ -87,9 +87,9 @@ def create_latex_table_rows(balance_increase_one_sport: pd.DataFrame) -> str:
     KEYS = {
         "index": list(
             product(
+                ("drr", "all"),
                 ("graph", "recursive"),
                 ("current", "previous"),
-                ("drr", "all"),
                 ("mirrored", "reversed"),
                 ("random_", ""),
             )
@@ -104,7 +104,7 @@ def create_latex_table_rows(balance_increase_one_sport: pd.DataFrame) -> str:
     ]
 
     def _build_tournament_index(
-        algorithm: str, oracle: str, format: str, second_turn: str, best_home: str
+        format: str, algorithm: str, oracle: str, second_turn: str, best_home: str
     ) -> tuple[str, str]:
         return (format, f"{algorithm}_tp_maximizer_{best_home}{second_turn}-{oracle}")
 
