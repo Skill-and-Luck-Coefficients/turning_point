@@ -1,4 +1,8 @@
-from .balance_increase import get_balance_increase_all_sports
+from .balance_increase import (
+    create_latex_table_rows,
+    get_key_to_balance_increase_all_sports,
+    get_sport_to_balance_increase_df,
+)
 from .bookmaker_predictions import get_sport_to_bookmakers_comparison
 from .bradley_terry_simulation import (
     filter_stats_one_simulation,
@@ -15,7 +19,9 @@ from .statistical_data import get_statistical_information
 from .temporal_tendency import get_temporal_slope_tendency, style_temporal_tendency
 
 __all__ = [
-    "get_balance_increase_all_sports",
+    "create_latex_table_rows",
+    "get_key_to_balance_increase_all_sports",
+    "get_sport_to_balance_increase_df",
     "get_sport_to_bookmakers_comparison",
     "filter_stats_one_simulation",
     "run_bradley_terry_simulations",
