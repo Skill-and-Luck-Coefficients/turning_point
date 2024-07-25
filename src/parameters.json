@@ -58,11 +58,11 @@
                 "types": {
                     "graph": {
                         "tp_minimizer": ["mirrored"],
-                        "tp_maximizer": ["mirrored", "reversed", "random_reversed"]
+                        "tp_maximizer": ["mirrored", "reversed", "random_mirrored", "random_reversed"]
                     },
                     "recursive": {
                         "tp_minimizer": ["mirrored"],
-                        "tp_maximizer": ["mirrored", "reversed", "random_reversed"]
+                        "tp_maximizer": ["mirrored", "reversed", "random_mirrored", "random_reversed"]
                     }
                 }
             }
