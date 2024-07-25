@@ -45,7 +45,7 @@ def generate_optimal_graph_schedule(
     skill_diff_fn: Callable[[float, float], float] = lambda x, y: (x - y) ** 2,
 ) -> list[Round]:
     """
-    Greedy algorithm that finds the maximum skill discrepancy between pairs of teams and se
+    Greedy algorithm that finds the maximum skill discrepancy between pairs of teams.
 
     ----
     Parameters:
