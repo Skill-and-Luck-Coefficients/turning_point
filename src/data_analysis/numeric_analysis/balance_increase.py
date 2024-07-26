@@ -91,7 +91,7 @@ def create_latex_table_rows(balance_increase_one_sport: pd.DataFrame) -> str:
                 ("graph", "recursive"),
                 ("current", "previous"),
                 ("mirrored", "reversed"),
-                ("random_", ""),
+                ("", "random_"),
             )
         ),
         "checkmark": list(product((r"\cm", "   "), repeat=5)),
