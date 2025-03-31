@@ -47,6 +47,7 @@ def build_most_imbalanced_tournament(
         Team that played the second most amount of matches: win all matches (except for the previous team)
         ...
     """
+    df = ppm
     if isinstance(ppm, ds.PointsPerMatch):
         df = ppm.df
 

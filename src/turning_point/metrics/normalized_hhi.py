@@ -95,26 +95,34 @@ class NormalizedHHI(Metric):
                 If None, they will be estimated directly from 'ppm'.
         """
 
-        def _calculate_normalized_hhi_per_id(df: pd.DataFrame) -> pd.DataFrame:
-            def _get_upper_bound():
-                _df = build_most_imbalanced_tournament(df)
+        def _calculate_hhi_per_id(df: pd.DataFrame) -> pd.DataFrame:
+            rankings = df.groupby(["id", "team"], observed=True).sum()
+            return rankings.groupby("id", observed=True).apply(hhi_fn)
+
+        def _normalization_fn(
+            coef_df: pd.DataFrame, real_ppm: PointsPerMatch
+        ) -> pd.DataFrame:
+            def _get_lower_bound():
+                _rankings = real_ppm.df.groupby(["id", "team"], observed=True).sum()
+                return hhi_lower_bound(_rankings)
+
+            def _get_upper_bound() -> pd.Series:
+                _df = build_most_imbalanced_tournament(real_ppm.df)
                 _rankings = _df.groupby(["id", "team"], observed=True).sum()
                 return _rankings.groupby("id", observed=True).apply(hhi_fn)
 
-            rankings = df.groupby(["id", "team"], observed=True).sum()
+            lower_bound = _get_lower_bound().to_numpy().reshape(-1, 1)
+            upper_bound = _get_upper_bound().to_numpy().reshape(-1, 1)
 
-            lower_bound = hhi_lower_bound(rankings)
-            upper_bound = _get_upper_bound()
-
-            hhi = rankings.groupby("id", observed=True).apply(hhi_fn)
-            nhhi = (hhi - lower_bound) / (upper_bound - lower_bound)
+            nhhi = (coef_df - lower_bound) / (upper_bound - lower_bound)
             return np.clip(nhhi, 0, 1)
 
         parameters = get_kwargs_from_points_per_match(
             ppm,
-            _calculate_normalized_hhi_per_id,
+            _calculate_hhi_per_id,
             num_iteration_simulation,
             id_to_probabilities,
+            _normalization_fn,
         )
         return cls(**parameters)
 
@@ -144,7 +152,7 @@ class NaiveNormalizedHHI(Metric):
                 ],\n
                 columns=[
                     f"s{i}"-> np.float64
-                        f"s{i}"   : NormalizedHHI for i-th simulation,
+                        f"s{i}"   : NaiveNormalizedHHI for i-th simulation,
                 ]
             ]
     """
@@ -158,7 +166,7 @@ class NaiveNormalizedHHI(Metric):
         ppm: PointsPerMatch,
         num_iteration_simulation: tuple[int, int],
         id_to_probabilities: pd.Series | None = None,
-    ) -> NormalizedHHI:
+    ) -> NaiveNormalizedHHI:
         """
         Creates an instance from PointsPerMatch.
 
@@ -183,19 +191,27 @@ class NaiveNormalizedHHI(Metric):
                 If None, they will be estimated directly from 'ppm'.
         """
 
-        def _calculate_naive_normalized_hhi_per_id(df: pd.DataFrame) -> pd.DataFrame:
+        def _calculate_hhi_per_id(df: pd.DataFrame) -> pd.DataFrame:
             rankings = df.groupby(["id", "team"], observed=True).sum()
+            return rankings.groupby("id", observed=True).apply(hhi_fn)
 
-            lower_bound = hhi_lower_bound(rankings)
+        def _normalization_fn(
+            coef_df: pd.DataFrame, real_ppm: PointsPerMatch
+        ) -> pd.DataFrame:
+            def _get_lower_bound():
+                _rankings = real_ppm.df.groupby(["id", "team"], observed=True).sum()
+                return hhi_lower_bound(_rankings)
 
-            hhi = rankings.groupby("id", observed=True).apply(hhi_fn)
-            return (hhi - lower_bound) / (1 - lower_bound)
+            lower_bound = _get_lower_bound().to_numpy().reshape(-1, 1)
+            nhhi = (coef_df - lower_bound) / (1 - lower_bound)
+            return np.clip(nhhi, 0, 1)
 
         parameters = get_kwargs_from_points_per_match(
             ppm,
-            _calculate_naive_normalized_hhi_per_id,
+            _calculate_hhi_per_id,
             num_iteration_simulation,
             id_to_probabilities,
+            _normalization_fn,
         )
         return cls(**parameters)
 
@@ -264,18 +280,26 @@ class HICB(Metric):
                 If None, they will be estimated directly from 'ppm'.
         """
 
-        def _calculate_hicb_per_id(df: pd.DataFrame) -> pd.DataFrame:
+        def _calculate_hhi_per_id(df: pd.DataFrame) -> pd.DataFrame:
             rankings = df.groupby(["id", "team"], observed=True).sum()
+            return rankings.groupby("id", observed=True).apply(hhi_fn)
 
-            lower_bound = hhi_lower_bound(rankings)
+        def _normalization_fn(
+            coef_df: pd.DataFrame, real_ppm: PointsPerMatch
+        ) -> pd.DataFrame:
+            def _get_lower_bound():
+                _rankings = real_ppm.df.groupby(["id", "team"], observed=True).sum()
+                return hhi_lower_bound(_rankings)
 
-            hhi = rankings.groupby("id", observed=True).apply(hhi_fn)
-            return hhi / lower_bound
+            lower_bound = _get_lower_bound().to_numpy().reshape(-1, 1)
+            return coef_df / lower_bound
 
         parameters = get_kwargs_from_points_per_match(
             ppm,
-            _calculate_hicb_per_id,
+            _calculate_hhi_per_id,
             num_iteration_simulation,
             id_to_probabilities,
+            _normalization_fn,
         )
+
         return cls(**parameters)

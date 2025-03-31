@@ -20,12 +20,6 @@ def interquartile_range(standings: pd.Series | pd.DataFrame) -> float | pd.Serie
     return quantiles.loc[0.75] - quantiles.loc[0.25]
 
 
-def _calculate_interquartile_range_per_id(df: pd.DataFrame) -> pd.DataFrame:
-    rankings = df.groupby(["id", "team"], observed=True).sum()
-    iqr_fn = interquartile_range
-    return rankings.groupby("id", observed=True).apply(iqr_fn)
-
-
 @dataclass
 class IQR(Metric):
     """
@@ -89,6 +83,11 @@ class IQR(Metric):
 
                 If None, they will be estimated directly from 'ppm'.
         """
+
+        def _calculate_interquartile_range_per_id(df: pd.DataFrame) -> pd.DataFrame:
+            rankings = df.groupby(["id", "team"], observed=True).sum()
+            iqr_fn = interquartile_range
+            return rankings.groupby("id", observed=True).apply(iqr_fn)
 
         parameters = get_kwargs_from_points_per_match(
             ppm,

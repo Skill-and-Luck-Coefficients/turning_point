@@ -39,22 +39,21 @@ class Metric(metaclass=ABCMeta):
     """
 
     real: pd.DataFrame
-    simulated: pd.DataFrame
+    simulated: pd.DataFrame | None
 
     def __post_init__(self) -> None:
+        def _set_correct_types(_df: pd.DataFrame) -> pd.DataFrame:
+            _to_reset = [name for name in index_cols if name in _df.index.names]
+            _df = _df.reset_index(_to_reset)
+            return _df.astype(dtype).set_index(index_cols).sort_index()
+
         index_cols = ["id"]
+        dtype = {"id": "category"}
 
-        to_reset = [name for name in index_cols if name in self.real.index.names]
-        self.real = self.real.reset_index(to_reset)
+        self.real = _set_correct_types(self.real)
 
-        to_reset = [name for name in index_cols if name in self.simulated.index.names]
-        self.simulated = self.simulated.reset_index(to_reset)
-
-        data_types = {"id": "category"}
-        self.real = self.real.astype(data_types).set_index(index_cols).sort_index()
-        self.simulated = (
-            self.simulated.astype(data_types).set_index(index_cols).sort_index()
-        )
+        if self.simulated is not None:
+            self.simulated = _set_correct_types(self.simulated)
 
     @classmethod
     def from_points_per_match(

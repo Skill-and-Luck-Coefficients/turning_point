@@ -15,6 +15,7 @@ def get_kwargs_from_points_per_match(
     func: Callable[[pd.DataFrame], pd.DataFrame],
     num_iteration_simulation: tuple[int, int],
     id_to_probabilities: pd.Series | None = None,
+    norm_fn: Callable[[pd.DataFrame, PointsPerMatch], pd.DataFrame] = lambda c, ppm: c,
 ) -> KwargsVar:
     """
     Simulates all tournaments and returns its variances.
@@ -54,6 +55,13 @@ def get_kwargs_from_points_per_match(
 
             If None, they will be estimated directly from 'ppm'.
 
+        norm_fn: Callable[[pd.DataFrame, pd.DataFrame], pd.DataFrame] = lambda x: x
+            Function input:
+                (first) pd.DataFrame: Coefficients for each league (real or simulated)
+                (second) PointsPerMatch: PointsPerMatch for the real tournament.
+            Function output:
+                Normalized coefficients.
+
     -----
     Returns:
         Kwargs parameters to create an instance of Variance
@@ -61,16 +69,21 @@ def get_kwargs_from_points_per_match(
             "simulated": Ranking variance for all simulated tournaments.
     """
 
-    real_variances = func(ppm.df)
+    real_coef = func(ppm.df)
 
-    simul_ppm = SimulatePointsPerMatch(ppm)
-    simulated_variances = simul_ppm.tournament_wide(
-        num_iteration_simulation=num_iteration_simulation,
-        id_to_probabilities=id_to_probabilities,
-        func_after_simulation=func,
-    )
+    simulated_coef = None
+    num_iteration, num_simulation_per_iter = num_iteration_simulation
+
+    if num_iteration and num_simulation_per_iter:
+        simul_ppm = SimulatePointsPerMatch(ppm)
+        simulated_coef = simul_ppm.tournament_wide(
+            num_iteration_simulation=num_iteration_simulation,
+            id_to_probabilities=id_to_probabilities,
+            func_after_simulation=func,
+        )
+        simulated_coef = norm_fn(simulated_coef, ppm)
 
     return {
-        "real": real_variances.rename(columns={"points": "real"}),
-        "simulated": simulated_variances,
+        "real": norm_fn(real_coef.rename(columns={"points": "real"}), ppm),
+        "simulated": simulated_coef,
     }

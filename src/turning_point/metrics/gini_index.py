@@ -142,7 +142,7 @@ class NormalizedGini(Metric):
                 ],\n
                 columns=[
                     f"s{i}"-> np.float64
-                        f"s{i}"   : gini index for i-th simulation,
+                        f"s{i}"   : normalized gini index for i-th simulation,
                 ]
             ]
     """
@@ -156,7 +156,7 @@ class NormalizedGini(Metric):
         ppm: PointsPerMatch,
         num_iteration_simulation: tuple[int, int],
         id_to_probabilities: pd.Series | None = None,
-    ) -> Gini:
+    ) -> NormalizedGini:
         """
         Creates an instance from PointsPerMatch.
 
@@ -182,15 +182,21 @@ class NormalizedGini(Metric):
         """
 
         def _calculate_gini_index_per_id(df: pd.DataFrame) -> pd.DataFrame:
-            def _get_upper_bound():
-                _df = build_most_imbalanced_tournament(df)
+            rankings = df.groupby(["id", "team"], observed=True).sum()
+            return rankings.groupby("id", observed=True).apply(gini)
+
+        def _normalization_fn(
+            coef_df: pd.DataFrame, real_ppm: PointsPerMatch
+        ) -> pd.DataFrame:
+
+            def _get_upper_bound() -> pd.Series:
+                _df = build_most_imbalanced_tournament(real_ppm.df)
                 _rankings = _df.groupby(["id", "team"], observed=True).sum()
                 return _rankings.groupby("id", observed=True).apply(gini)
 
-            rankings = df.groupby(["id", "team"], observed=True).sum()
+            upper_bound = _get_upper_bound().to_numpy().reshape(-1, 1)
 
-            gini_index = rankings.groupby("id", observed=True).apply(gini)
-            normalized_gini = gini_index / _get_upper_bound()
+            normalized_gini = coef_df / upper_bound
             return np.clip(normalized_gini, 0, 1)
 
         parameters = get_kwargs_from_points_per_match(
@@ -198,5 +204,6 @@ class NormalizedGini(Metric):
             _calculate_gini_index_per_id,
             num_iteration_simulation,
             id_to_probabilities,
+            _normalization_fn,
         )
         return cls(**parameters)

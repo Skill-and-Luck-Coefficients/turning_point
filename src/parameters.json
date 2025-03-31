@@ -10,7 +10,16 @@
             "should_calculate_it": true,
             "seed": 0,
             "quantile": 0.95,
-            "metric": [ "variance", "nhhi", "hicb", "gini", "iqr", "cr" ],
+            "metric": [ 
+                "variance",
+                "naive_nhhi",
+                "hicb",
+                "gini",
+                "iqr",
+                "fast_ncr",
+                "nhhi",
+                "normalized_gini"
+            ],
             "parameters": {
                 "num_iteration_simulation": [ 10, 100 ],
                 "winner_type": "winner",

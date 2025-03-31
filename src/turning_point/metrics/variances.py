@@ -10,11 +10,6 @@ from .calculate_metric import get_kwargs_from_points_per_match
 from .metric import Metric
 
 
-def _calculate_ranking_variances_per_id(df: pd.DataFrame) -> pd.DataFrame:
-    rankings = df.groupby(["id", "team"], observed=True).sum()
-    return rankings.groupby("id", observed=True).var()
-
-
 @dataclass
 class Variances(Metric):
     """
@@ -78,6 +73,10 @@ class Variances(Metric):
 
                 If None, they will be estimated directly from 'ppm'.
         """
+
+        def _calculate_ranking_variances_per_id(df: pd.DataFrame) -> pd.DataFrame:
+            rankings = df.groupby(["id", "team"], observed=True).sum()
+            return rankings.groupby("id", observed=True).var()
 
         parameters = get_kwargs_from_points_per_match(
             ppm,
