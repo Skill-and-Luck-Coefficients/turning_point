@@ -30,14 +30,19 @@ def _make_scheduling_fns(
     optimal_fn: alg.OptimalFn,
     deterministic_fn: sch.types.SchedulingFn,
     random_fn: sch.types.SchedulingFn,
+    break_min_fn: sch.types.SchedulingFn,
 ) -> dict[types.ScheduleType, SimpleSchedulingFn]:
-    fn_kwargs = {"optimal_fn": optimal_fn}
+
+    fn_kwargs_mirrored = {"second_portion": "flipped", "optimal_fn": optimal_fn}
+    fn_kwargs_reversed = {"second_portion": "reversed", "optimal_fn": optimal_fn}
 
     return {
-        "mirrored": partial(deterministic_fn, second_portion="flipped", **fn_kwargs),
-        "reversed": partial(deterministic_fn, second_portion="reversed", **fn_kwargs),
-        "random_mirrored": partial(random_fn, second_portion="flipped", **fn_kwargs),
-        "random_reversed": partial(random_fn, second_portion="reversed", **fn_kwargs),
+        "mirrored": partial(deterministic_fn, **fn_kwargs_mirrored),
+        "reversed": partial(deterministic_fn, **fn_kwargs_reversed),
+        "random_mirrored": partial(random_fn, **fn_kwargs_mirrored),
+        "random_reversed": partial(random_fn, **fn_kwargs_reversed),
+        "break_min_mirrored": partial(break_min_fn, **fn_kwargs_mirrored),
+        "break_min_reversed": partial(break_min_fn, **fn_kwargs_reversed),
     }
 
 
@@ -47,11 +52,13 @@ SCHEDULING_FNS = {
             alg.generate_optimal_graph_schedule,
             sch.good_vs_bad_last.create_double_rr,
             sch.good_vs_bad_last.create_random_double_rr,
+            sch.good_vs_bad_last.create_break_minimizing_double_rr,
         ),
         "tp_minimizer": _make_scheduling_fns(
             alg.generate_optimal_graph_schedule,
             sch.good_vs_bad_first.create_double_rr,
             sch.good_vs_bad_first.create_random_double_rr,
+            sch.good_vs_bad_first.create_break_minimizing_double_rr,
         ),
     },
     "recursive": {
@@ -59,11 +66,13 @@ SCHEDULING_FNS = {
             alg.generate_recursive_optimal_schedule,
             sch.good_vs_bad_last.create_double_rr,
             sch.good_vs_bad_last.create_random_double_rr,
+            sch.good_vs_bad_last.create_break_minimizing_double_rr,
         ),
         "tp_minimizer": _make_scheduling_fns(
             alg.generate_recursive_optimal_schedule,
             sch.good_vs_bad_first.create_double_rr,
             sch.good_vs_bad_first.create_random_double_rr,
+            sch.good_vs_bad_first.create_break_minimizing_double_rr,
         ),
     },
 }

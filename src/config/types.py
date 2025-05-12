@@ -9,6 +9,8 @@ ScheduleType = Literal[
     "reversed",
     "random_mirrored",
     "random_reversed",
+    "break_min_mirrored",
+    "break_min_reversed",
 ]
 
 
