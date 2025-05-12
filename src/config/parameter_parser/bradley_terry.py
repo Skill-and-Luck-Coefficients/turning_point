@@ -11,82 +11,76 @@ from synthetic_tournaments import Scheduler
 from synthetic_tournaments.bradley_terry import simulate_bradley_terry_tourney
 from synthetic_tournaments.optimal_schedule import algorithm as opt_alg
 from synthetic_tournaments.optimal_schedule import scheduling as opt_sch
-from synthetic_tournaments.optimal_schedule import scheduling as sch
 from synthetic_tournaments.permutation import scheduling as sch
 from tournament_simulations.data_structures import Matches
 from tournament_simulations.permutations import MatchesPermutations
+from tournament_simulations.schedules import Round
 
 from .. import types
 from . import utils
 
 
-def _permute_matches(
-    matches: Matches,
-    permutation_fn: Callable,
-    permutation_ids: Iterable[str],
-) -> Matches:
-    scheduler_factory = Scheduler(matches, permutation_fn)
-    scheduler = scheduler_factory.get_current_year_scheduler()
-
-    permutations_creator = MatchesPermutations(matches, scheduler)
-    return permutations_creator.create_n_permutations(permutation_ids)
-
-
-def _generate_permutations_one_result(
+def _generate_bt_simulations(
+    n_simulations: int,
     label: str,
-    strengths: list[float],
-    number_of_drr: int,
-    n_random_permutations: int,
+    **simulate_bt_kwargs,
 ) -> Matches:
-    matches = simulate_bradley_terry_tourney(strengths, label, number_of_drr)
+    """
+    Random schedule and random results.
+    """
 
-    random_kwargs = {
-        "permutation_fn": sch.circle_method.create_double_rr,
-        "permutation_ids": map(str, range(n_random_permutations)),
-    }
+    def _simulate(_simulation_number: int) -> pd.DataFrame:
+        simulation_params = {
+            **simulate_bt_kwargs,
+            "label": f"{label}_{_simulation_number}",
+        }
+        return simulate_bradley_terry_tourney(**simulation_params).df
 
-    graph_kwargs = {
-        "permutation_fn": partial(
-            opt_sch.good_vs_bad_last.create_double_rr,
-            second_portion="flipped",
-            optimal_fn=opt_alg.generate_optimal_graph_schedule,
-        ),
-        "permutation_ids": ["graph_optimal"],
-    }
-
-    recursive_kwargs = {
-        "permutation_fn": partial(
-            opt_sch.good_vs_bad_last.create_double_rr,
-            second_portion="flipped",
-            optimal_fn=opt_alg.generate_recursive_optimal_schedule,
-        ),
-        "permutation_ids": ["recusive_optimal"],
-    }
-
-    all_kwargs = [random_kwargs, graph_kwargs, recursive_kwargs]
-    to_concat = (_permute_matches(matches, **kwargs).df for kwargs in all_kwargs)
+    to_concat = (_simulate(number) for number in n_simulations)
     return Matches(pd.concat(to_concat))
 
 
 @log(turning_logger.info)
-def _create_bt_permutations(
+def _create_bt_simulations(
     label: str,
     strengths: list[float],
-    n_different_results: int,
-    n_permutations_per_result: int,
+    n_simulations: int,
     number_of_drr: int,
 ) -> Matches:
 
-    kwargs = {
-        "strengths": strengths,
-        "number_of_drr": number_of_drr,
-        "n_random_permutations": n_permutations_per_result,
-    }
-    diff_permutations = (
-        _generate_permutations_one_result(f"{label}@result_{i}", **kwargs)
-        for i in range(n_different_results)
-    )
-    return Matches(pd.concat(matches.df for matches in diff_permutations))
+    def _purely_random_params():
+        return {
+            "strengths": strengths,
+            "label": f"{label}_purely_random",
+            "number_of_drr": number_of_drr,
+            "scheduling_func": "circle",
+            "randomize_schedule": "all",
+        }
+
+    def _graph_optimal_params():
+        return {
+            "strengths": strengths,
+            "label": f"{label}_graph_optimal",
+            "number_of_drr": number_of_drr,
+            "scheduling_func": opt_alg.generate_optimal_graph_schedule,
+            "randomize_schedule": None,
+        }
+
+    def _recursive_optimal_params():
+        return {
+            "strengths": strengths,
+            "label": f"{label}_recursive_optimal",
+            "number_of_drr": number_of_drr,
+            "scheduling_func": opt_alg.generate_recursive_optimal_schedule,
+            "randomize_schedule": None,
+        }
+
+    simulations = [
+        _generate_bt_simulations(n_simulations, **_purely_random_params()).df,
+        _generate_bt_simulations(n_simulations, **_graph_optimal_params()).df,
+        _generate_bt_simulations(n_simulations, **_recursive_optimal_params()).df,
+    ]
+    return Matches(pd.concat(simulations))
 
 
 def create_and_save_bradltey_terry_matches(
@@ -103,7 +97,7 @@ def create_and_save_bradltey_terry_matches(
     filenames = utils.parse_value_or_iterable(config["sports"])
 
     filename_to_matches = {
-        filename: _create_bt_permutations("BT", **bt_cfg["parameters"][filename])
+        filename: _create_bt_simulations("BT", **bt_cfg["parameters"][filename])
         for filename in filenames
     }
 

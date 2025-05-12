@@ -1,4 +1,4 @@
-from typing import Callable, Literal
+from typing import Callable
 
 import numpy as np
 import pandas as pd
@@ -8,35 +8,13 @@ from tournament_simulations.data_structures import Matches
 from tournament_simulations.schedules import convert_list_of_rounds_to_dataframe
 
 
-def _replace_team_name_with_strength(
-    matches_df: pd.DataFrame,
-    strengths: list[float],
-) -> pd.DataFrame:
-
-    strengths_ = dict(enumerate(strengths))
-    return {
-        "home": matches_df["home"].map(strengths_),
-        "away": matches_df["away"].map(strengths_),
-    }
-
-
-def _get_bradley_terry_winner(
-    skill_per_match: dict[Literal["home", "away"], pd.Series],
-    uniform_values: np.ndarray,
-) -> pd.Series:
-
-    skill_per_match_sum = skill_per_match["home"] + skill_per_match["away"]
-    prob_home_win = skill_per_match["home"] / skill_per_match_sum
-
-    return (uniform_values <= prob_home_win).map({True: "h", False: "a"})
-
-
 def _simulate_bt_tourney_no_randomness(
     strengths: list[float],
     label: str,
     number_of_drr: int,
-    random_fn: Callable[[int], np.ndarray],
     rand_first: str | None,
+    scheduling_func: str | Callable,
+    random_fn: Callable[[int], np.ndarray],
 ) -> Matches:
     """
     random_fn: Callable[
@@ -44,20 +22,42 @@ def _simulate_bt_tourney_no_randomness(
         np.ndarray, # random uniform numbers
     ]
     """
-    drr = ts_rr.DoubleRoundRobin.from_num_teams(len(strengths))
-    schedule = drr.get_full_schedule(number_of_drr, rand_first)
-    matches_df = convert_list_of_rounds_to_dataframe(schedule, label)
 
-    uniform_values = random_fn(size=len(matches_df))
-    skill_per_match = _replace_team_name_with_strength(matches_df, strengths)
-    matches_df["winner"] = _get_bradley_terry_winner(skill_per_match, uniform_values)
-    return Matches(matches_df)
+    def _build_schedule_df() -> pd.DataFrame:
+        _drr = ts_rr.DoubleRoundRobin.from_num_teams(len(strengths), scheduling_func)
+        _schedule = _drr.get_full_schedule(number_of_drr, rand_first)
+        return convert_list_of_rounds_to_dataframe(_schedule, label)
+
+    def _get_team_strengths_rowwise() -> pd.DataFrame:
+        _strengths = dict(enumerate(strengths))
+        return pd.DataFrame(
+            {
+                "home": schedule["home"].map(_strengths),
+                "away": schedule["away"].map(_strengths),
+            }
+        )
+
+    def _simulate_row_winner() -> pd.Series:
+        _skill_per_match_sum = skill_per_match["home"] + skill_per_match["away"]
+        _prob_home_win = skill_per_match["home"] / _skill_per_match_sum
+
+        _uniform_values = random_fn(len(schedule))
+        return (_uniform_values <= _prob_home_win).map({True: "h", False: "a"})
+
+    schedule = _build_schedule_df()
+
+    skill_per_match = _get_team_strengths_rowwise()
+    schedule["winner"] = _simulate_row_winner()
+
+    return Matches(schedule)
 
 
 def simulate_bradley_terry_tourney(
     strengths: list[float],
     label: str = "bradley_terry",
     number_of_drr: int = 1,
+    scheduling_func: str | Callable = "circle",
+    randomize_schedule: str | list[str] | None = "all",
 ) -> Matches:
     """
     Simulate one tournament from Bradley-Terry's pairwise comparison probabilities.
@@ -73,6 +73,15 @@ def simulate_bradley_terry_tourney(
         number_of_drr: int = 1
             How many double round-robin should be concatenated together to create the tournament.
 
+        randomize_schedule: str | list[str] | None
+            What should be randomized in the first portion of the double round-robin schedule.
+                Options: ["teams", "home_away", "matches", "rounds", "all"]
+
+                If it is an empty iterable or None, a copy of schedule will be returned.
+
+        scheduling_func: str | Callable[[int], list[Round]] = "circle"
+            Function responsible for creating a schedule.
+
     ----
     Returns:
         Matches
@@ -82,6 +91,7 @@ def simulate_bradley_terry_tourney(
         strengths,
         label,
         number_of_drr,
+        rand_first=randomize_schedule,
+        scheduling_func=scheduling_func,
         random_fn=np.random.random,
-        rand_first="all",
     )

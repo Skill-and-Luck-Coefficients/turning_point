@@ -125,14 +125,12 @@ class OptimalConfig(TypedDict):
 class BradleyTerryMatchesParameters(TypedDict):
     """
     strengths: list[float]
-    n_different_results: int
-    n_permutations_per_result: int
+    n_simulations: int
     number_of_drr: int
     """
 
     strengths: list[float]
-    n_different_results: int
-    n_permutations_per_result: int
+    n_simulations: int
     number_of_drr: int
 
 
