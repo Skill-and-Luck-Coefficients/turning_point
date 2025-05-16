@@ -1,20 +1,14 @@
 import random
-from functools import partial
 from pathlib import Path
-from typing import Callable, Iterable
 
 import numpy.random as nprandom
 import pandas as pd
 
 from logs import log, turning_logger
-from synthetic_tournaments import Scheduler
 from synthetic_tournaments.bradley_terry import simulate_bradley_terry_tourney
+from synthetic_tournaments.break_minimizer import scheduling as min_break
 from synthetic_tournaments.optimal_schedule import algorithm as opt_alg
-from synthetic_tournaments.optimal_schedule import scheduling as opt_sch
-from synthetic_tournaments.permutation import scheduling as sch
 from tournament_simulations.data_structures import Matches
-from tournament_simulations.permutations import MatchesPermutations
-from tournament_simulations.schedules import Round
 
 from .. import types
 from . import utils
@@ -75,10 +69,38 @@ def _create_bt_simulations(
             "randomize_schedule": None,
         }
 
+    def _min_break_graph_optimal_params():
+        def _scheduling_func(_strenghts):
+            optimal_schedule = opt_alg.generate_optimal_graph_schedule(_strenghts)
+            return min_break.min_break_schedule_from_list_schedule(optimal_schedule)
+
+        return {
+            "strengths": strengths,
+            "label": f"{label}_min_break_graph_optimal",
+            "number_of_drr": number_of_drr,
+            "scheduling_func": _scheduling_func,
+            "randomize_schedule": None,
+        }
+
+    def _min_break_rec_optimal_params():
+        def _scheduling_func(_strenghts):
+            optimal_schedule = opt_alg.generate_recursive_optimal_schedule(_strenghts)
+            return min_break.min_break_schedule_from_list_schedule(optimal_schedule)
+
+        return {
+            "strengths": strengths,
+            "label": f"{label}_min_break_recursive_optimal",
+            "number_of_drr": number_of_drr,
+            "scheduling_func": _scheduling_func,
+            "randomize_schedule": None,
+        }
+
     simulations = [
         _generate_bt_simulations(n_simulations, **_purely_random_params()).df,
         _generate_bt_simulations(n_simulations, **_graph_optimal_params()).df,
         _generate_bt_simulations(n_simulations, **_recursive_optimal_params()).df,
+        _generate_bt_simulations(n_simulations, **_min_break_graph_optimal_params()).df,
+        _generate_bt_simulations(n_simulations, **_min_break_rec_optimal_params()).df,
     ]
     return Matches(pd.concat(simulations))
 
