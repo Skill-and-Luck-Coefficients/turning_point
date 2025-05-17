@@ -7,7 +7,7 @@
             "volleyball"
         ],
         "turning_point": {
-            "should_calculate_it": false,
+            "should_calculate_it": true,
             "seed": 0,
             "quantile": 0.95,
             "metric": [ 
@@ -35,14 +35,14 @@
             "volleyball"
         ],
         "matches": {
-            "should_create_it": false,
+            "should_create_it": true,
             "seed": 1,
             "parameters": {
                 "num_permutations": 100
             }
         },
         "turning_point": {
-            "should_calculate_it": false,
+            "should_calculate_it": true,
             "seed": 2,
             "quantile": 0.95,
             "metric": "variance",
