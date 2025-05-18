@@ -30,7 +30,7 @@ def _generate_bt_simulations(
         }
         return simulate_bradley_terry_tourney(**simulation_params).df
 
-    to_concat = (_simulate(number) for number in n_simulations)
+    to_concat = (_simulate(number) for number in range(n_simulations))
     return Matches(pd.concat(to_concat))
 
 
