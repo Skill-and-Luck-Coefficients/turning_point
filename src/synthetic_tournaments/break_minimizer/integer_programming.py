@@ -1,3 +1,4 @@
+from itertools import combinations
 from typing import Literal
 
 import numpy as np
@@ -161,21 +162,20 @@ def get_constraints(
         S_{t, i, j} + S_{t, j, i} = `initial_condition`_{t, i, j}
         """
 
-        for _team_i in range(num_teams):
-            for _team_j in range(num_teams):
-                for _round in range(num_round_one_turn):
+        for _team_i, _team_j in combinations(range(num_teams), r=2):
+            for _round in range(num_round_one_turn):
 
-                    if symmetric_schedule_tensor[_round, _team_i, _team_j] == 0:
-                        continue
+                if symmetric_schedule_tensor[_round, _team_i, _team_j] == 0:
+                    continue
 
-                    _constraints = _create_empty_constraints()
-                    _constraints["schedule"][_round, _team_i, _team_j] = 1
-                    _constraints["schedule"][_round, _team_j, _team_i] = 1
-                    _coefficients = stack_all_flattened(*_constraints.values())
+                _constraints = _create_empty_constraints()
+                _constraints["schedule"][_round, _team_i, _team_j] = 1
+                _constraints["schedule"][_round, _team_j, _team_i] = 1
+                _coefficients = stack_all_flattened(*_constraints.values())
 
-                    constraint_lower_bound.append(1)
-                    constraint_upper_bound.append(1)
-                    constraint_coefficients.append(_coefficients)
+                constraint_lower_bound.append(1)
+                constraint_upper_bound.append(1)
+                constraint_coefficients.append(_coefficients)
 
     constraint_lower_bound = []
     constraint_upper_bound = []
