@@ -9,7 +9,7 @@ from tournament_simulations.schedules import Round
 from tournament_simulations.schedules.utils.reversed_schedule import reverse_schedule
 
 from ..algorithm import OptimalFn, generate_recursive_optimal_schedule
-from .good_vs_bad_first import create_break_minimizing_double_rr
+from . import good_vs_bad_first
 
 
 def create_double_rr(
@@ -60,5 +60,5 @@ def create_break_minimizing_double_rr(
         "second_portion": second_portion,
         "optimal_fn": optimal_fn,
     }
-    minimizer_scheduele = create_break_minimizing_double_rr(**params)
+    minimizer_scheduele = good_vs_bad_first.create_break_minimizing_double_rr(**params)
     return list(reverse_schedule(minimizer_scheduele))
