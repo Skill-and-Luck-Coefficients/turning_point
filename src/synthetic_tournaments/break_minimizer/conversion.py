@@ -90,7 +90,7 @@ def convert_schedule_tensor_to_list(schedule: np.ndarray) -> list[Round]:
     for matchday, home, away in non_zero_schedule:
         schedule_list[matchday].append((home, away))
 
-    return schedule_list
+    return [tuple(sorted(round, key=min)) for round in schedule_list]
 
 
 def convert_schedule_df_to_tensor(schedule: pd.DataFrame) -> np.ndarray:

@@ -71,4 +71,4 @@ def create_break_minimizing_double_rr(
         MIN_BREAKS_CACHE[key] = _build_schedule_to_cache()
 
     schedule = MIN_BREAKS_CACHE[key] * num_schedules
-    return rename_teams_in_rounds(schedule, team_names)
+    return list(rename_teams_in_rounds(schedule, team_names))
