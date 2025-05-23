@@ -61,6 +61,7 @@ def read_as_dicts(
     dataset_keys: Key | Sequence[Key] | None = None,
     quantile: float = 0.95,
     metric: str = "variance",
+    remove_season: int | str | list[str | int] | None = None,
 ) -> dict[Key, dict[Sport, ContainDF]]:
     """
     Read desired dataset information from disk.
@@ -99,18 +100,49 @@ def read_as_dicts(
 
         metric: str = "variance"
             Desired metric.
+
+        remove_season: str | list[str] | None = None
+            Which seasons to remove. Format: "{year}", "{initial_year}-{final-year}"
     ----
     Returns:
         dict[Key, dict[Sport, <Desired Data>]]
 
     """
-    if dataset_keys is None:
-        dataset_keys = list(KEY_TO_CLASS_DIR.keys())
 
-    if isinstance(sports, str):
-        sports = [sports]
-    if isinstance(dataset_keys, str):
-        dataset_keys = [dataset_keys]
+    def _parse_dataset_keys() -> list[str]:
+        if dataset_keys is None:
+            return list(KEY_TO_CLASS_DIR.keys())
+
+        if isinstance(dataset_keys, str):
+            return [dataset_keys]
+
+        return dataset_keys
+
+    def _parse_sports() -> list[str]:
+        if isinstance(sports, str):
+            return [sports]
+        return sports
+
+    def _parse_remove_season() -> set[str]:
+        if remove_season is None:
+            return set([])
+
+        if isinstance(remove_season, str):
+            return set([remove_season])
+
+        return set(remove_season)
+
+    def _remove_years(_df: pd.DataFrame) -> pd.DataFrame:
+        _ids = _df.index.get_level_values("id")
+
+        _season_regex = ".+?@/.+?/.+?/.+?\-([0-9]{4}\-?[0-9]*?)/"
+        _seasons = _ids.str.extract(_season_regex, expand=False)
+
+        return _df[~_seasons.isin(remove_season)]
+
+    dataset_keys = _parse_dataset_keys()
+    sports = _parse_sports()
+    remove_season = _parse_remove_season()
 
     key_to_sport_to_data = {}
 
@@ -125,7 +157,8 @@ def read_as_dicts(
         for sport in sports:
             path = dir_ / f"{sport}.csv"
             if path.exists():
-                sport_to_data[sport] = class_(pd.read_csv(path))
+                data = class_(pd.read_csv(path))
+                sport_to_data[sport] = class_(_remove_years(data.df))
 
         key_to_sport_to_data[key] = sport_to_data
 
