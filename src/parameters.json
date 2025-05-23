@@ -82,13 +82,9 @@
             "quantile": 0.95,
             "metric": [ 
                 "variance",
-                "naive_nhhi",
-                "hicb",
-                "gini",
-                "iqr",
-                "fast_ncr",
                 "nhhi",
-                "normalized_gini"
+                "normalized_gini",
+                "hicb"
             ],
             "parameters": {
                 "num_iteration_simulation": [ 10, 100 ],
