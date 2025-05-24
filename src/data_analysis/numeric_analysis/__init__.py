@@ -9,6 +9,7 @@ from .bradley_terry_simulation import (
     run_bradley_terry_simulations,
 )
 from .bradley_terry_validation import get_validation_summary_all_files
+from .compare_metric_tps import get_tp_correlation, read_metrics_tp
 from .escaping_envelope import get_variance_fluctuating_close_to_envelope
 from .mean_per_tournament import get_mean_per_tournament
 from .metrics_to_final_standings import apply_metrics_to_final_standings
@@ -26,6 +27,8 @@ __all__ = [
     "filter_stats_one_simulation",
     "run_bradley_terry_simulations",
     "get_validation_summary_all_files",
+    "get_tp_correlation",
+    "read_metrics_tp",
     "get_variance_fluctuating_close_to_envelope",
     "get_mean_per_tournament",
     "apply_metrics_to_final_standings",
