@@ -10,14 +10,15 @@ BT_MATCHES_PATH = DATA_PATH / "matches/bradley_terry/"
 
 # Where to save coefficients and variances
 TURNING_POINT_PATH = DATA_PATH / "turning_point/real/"
-DIFF_POINTS_TURN_POINT_PATH = DATA_PATH / "turning_point/different_points/"
+DIFF_POINTS_TURN_POINT_PATH = DATA_PATH / "turning_point/different_points/real/"
 PERMUTED_TURNING_POINT_PATH = DATA_PATH / "turning_point/permuted/"
 OPTIMAL_TURNING_POINT_PATH = DATA_PATH / "turning_point/optimal/"
+OPT_DIFF_POINT_TP_PATH = DATA_PATH / "turning_point/different_points/optimal/"
 BT_TURNING_POINT_PATH = DATA_PATH / "turning_point/bradley_terry/"
 
 STATS_PATH = DATA_PATH / "stats/real/"
 DIFF_POINTS_STATS_PATH = DATA_PATH / "stats/different_points/real/"
-OPTIMAL_DIFF_POINTS_STATS_PATH = DATA_PATH / "stats/different_points/optimal/"
+OPT_DIFF_POINTS_STATS_PATH = DATA_PATH / "stats/different_points/optimal/"
 PERMUTED_STATS_PATH = DATA_PATH / "stats/permuted/"
 OPTIMAL_STATS_PATH = DATA_PATH / "stats/optimal/"
 BT_STATS_PATH = DATA_PATH / "stats/bradley_terry/"

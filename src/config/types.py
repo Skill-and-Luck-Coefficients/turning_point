@@ -171,5 +171,6 @@ class ConfigurationType(TypedDict):
     PERMUTED_MATCHES: PermutedConfig
     OPTIMAL_SCHEDULE: OptimalConfig
     DIFFERENT_POINT_SYSTEM: RealConfig
+    OPTIMAL_DIFFERENT_POINT_SYSTEM: OptimalConfig
     DIFFERENT_QUANTILE: RealConfig
     BRADLEY_TERRY: BradleyTerryConfig

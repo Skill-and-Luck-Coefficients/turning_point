@@ -17,6 +17,7 @@ def main() -> None:
     perm_cfg = configuration["PERMUTED_MATCHES"]
     opt_cfg = configuration["OPTIMAL_SCHEDULE"]
     diff_cfg = configuration["DIFFERENT_POINT_SYSTEM"]
+    opt_diff_cfg = configuration["OPTIMAL_DIFFERENT_POINT_SYSTEM"]
     bt_cfg = configuration["BRADLEY_TERRY"]
 
     # SYNTHETIC MATCHES
@@ -45,7 +46,7 @@ def main() -> None:
     var_config_read_dir_save_dir = [
         (real_cfg, path.MATCHES_PATH, path.STATS_PATH),
         (diff_cfg, path.MATCHES_PATH, path.DIFF_POINTS_STATS_PATH),
-        (diff_cfg, path.OPTIMAL_MATCHES_PATH, path.OPTIMAL_DIFF_POINTS_STATS_PATH),
+        (opt_diff_cfg, path.OPTIMAL_MATCHES_PATH, path.OPT_DIFF_POINTS_STATS_PATH),
         (perm_cfg, path.PERMUTED_MATCHES_PATH, path.PERMUTED_STATS_PATH),
         (opt_cfg, path.OPTIMAL_MATCHES_PATH, path.OPTIMAL_STATS_PATH),
         (bt_cfg, path.BT_MATCHES_PATH, path.BT_STATS_PATH),
@@ -57,7 +58,7 @@ def main() -> None:
     tp_config_read_dir_save_dir = [
         (real_cfg, path.STATS_PATH, path.TURNING_POINT_PATH),
         (diff_cfg, path.DIFF_POINTS_STATS_PATH, path.DIFF_POINTS_TURN_POINT_PATH),
-        (diff_cfg, path.OPTIMAL_MATCHES_PATH, path.OPTIMAL_DIFF_POINTS_STATS_PATH),
+        (opt_diff_cfg, path.OPT_DIFF_POINTS_STATS_PATH, path.OPT_DIFF_POINT_TP_PATH),
         (perm_cfg, path.PERMUTED_STATS_PATH, path.PERMUTED_TURNING_POINT_PATH),
         (opt_cfg, path.OPTIMAL_STATS_PATH, path.OPTIMAL_TURNING_POINT_PATH),
         (bt_cfg, path.BT_STATS_PATH, path.BT_TURNING_POINT_PATH),

@@ -46,12 +46,14 @@ KEY_TO_CLASS_DIR: dict[Key, tuple[type[ContainDF], Path]] = {
     "permuted_stats": (ms.ExpandingMetricStats, path.PERMUTED_STATS_PATH),
     "optimal_stats": (ms.ExpandingMetricStats, path.OPTIMAL_STATS_PATH),
     "diff_points_stats": (ms.ExpandingMetricStats, path.DIFF_POINTS_STATS_PATH),
+    "opt_diff_points_stats": (ms.ExpandingMetricStats, path.OPT_DIFF_POINTS_STATS_PATH),
     "bt_stats": (ms.ExpandingMetricStats, path.BT_STATS_PATH),
     # Turning Point
     "tp": (nc.TurningPoint, path.TURNING_POINT_PATH),
     "permuted_tp": (pc.PermutationTurningPoint, path.PERMUTED_TURNING_POINT_PATH),
     "optimal_tp": (pc.PermutationTurningPoint, path.OPTIMAL_TURNING_POINT_PATH),
     "diff_points_tp": (nc.TurningPoint, path.DIFF_POINTS_TURN_POINT_PATH),
+    "opt_diff_points_tp": (nc.TurningPoint, path.OPT_DIFF_POINT_TP_PATH),
     "bt_tp": (nc.TurningPoint, path.BT_TURNING_POINT_PATH),
 }
 
