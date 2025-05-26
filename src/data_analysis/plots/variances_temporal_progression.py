@@ -62,8 +62,8 @@ def _parse_text_parameters(
 def _plot_variance_progression_one_tourney(
     ax: Axes,
     variances: pd.DataFrame,
-    color_marker_label_dict: pf.CMLDict,
     lower_envelope: pd.DataFrame | None = None,
+    color_marker_label_dict: pf.CMLDict = COLOR_MARKER_LABEL,
 ) -> None:
     x: list[int] = variances.index.get_level_values("final date").to_list()
 
@@ -145,6 +145,15 @@ def plot_variances_temporal_progression(
     sport_to_num_teams: dict[str, pd.Series] | None = None,
     text_params: dict[TextParams] | list[dict[TextParams]] | None = None,
 ) -> None:
+
+    def _get_tournament_tp() -> int:
+        turning_point = sport_to_tp[sport].df
+        return turning_point.loc[id_, "turning point"]
+
+    def _get_tournament_var() -> pd.DataFrame:
+        variances = sport_to_var_stats[sport].df
+        return variances.loc[id_].iloc[:last_date]
+
     flat_axs = pf.flatten_axes(axs)
 
     naxis = len(flat_axs)
@@ -152,29 +161,26 @@ def plot_variances_temporal_progression(
 
     for ax, (name, id_), (tp_text, team_text) in zip(flat_axs, names__ids, text_params):
         sport = pf.get_sport_name_from_id(id_)
+        tournament_var = _get_tournament_var()
 
-        variances = sport_to_var_stats[sport].df
-        turning_point = sport_to_tp[sport].df
-
-        filtered_var: pd.DataFrame = variances.loc[id_].iloc[:last_date]
-        filtered_tp: int = turning_point.loc[id_, "turning point"]
-
-        filtered_lower_var = None
+        tournament_lower_var = None
         if sport_to_lower_envelope_bound is not None:
             lower_variances = sport_to_lower_envelope_bound[sport].df
-            filtered_lower_var: pd.DataFrame = lower_variances.loc[id_].iloc[:last_date]
+            tournament_lower_var = lower_variances.loc[id_].iloc[:last_date]
 
         ax.set_title(name)
+        _plot_variance_progression_one_tourney(ax, tournament_var, tournament_lower_var)
 
-        _plot_variance_progression_one_tourney(
-            ax, filtered_var, COLOR_MARKER_LABEL, filtered_lower_var
-        )
-        _plot_turning_point_line_one_tourney(ax, filtered_tp)
-        _plot_turning_point_text_one_tourney(ax, filtered_tp, **tp_text)
+    for ax, (name, id_), (tp_text, team_text) in zip(flat_axs, names__ids, text_params):
+        sport = pf.get_sport_name_from_id(id_)
+        tournament_tp = _get_tournament_tp()
+
+        _plot_turning_point_line_one_tourney(ax, tournament_tp)
+        _plot_turning_point_text_one_tourney(ax, tournament_tp, **tp_text)
 
         if sport_to_num_teams is not None:
             nteams = sport_to_num_teams[sport].loc[id_]
-            _plot_num_teams_text_one_tourney(ax, nteams, filtered_tp, **team_text)
+            _plot_num_teams_text_one_tourney(ax, nteams, tournament_tp, **team_text)
 
     pf.add_xlabels_nth_row(fig, axs, "Matchday", n=-1)
     pf.add_ylabels_to_nth_col(fig, axs, "Competitive Imbalance", n=0)
