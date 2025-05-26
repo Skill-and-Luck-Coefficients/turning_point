@@ -83,12 +83,16 @@ def _plot_variance_progression_one_tourney(
         ax.scatter(x, y.to_list(), color=color, marker=marker, alpha=0.3)
 
 
-def _plot_turning_point_line_one_tourney(ax: Axes, turning_point: float) -> None:
+def _plot_turning_point_line_one_tourney(
+    ax: Axes,
+    turning_point: float,
+    bottom: float,
+    top: float,
+) -> None:
     if np.isinf(turning_point):
         print("Turning Point is infinity!")
         return
 
-    bottom, top = ax.get_ylim()
     ymin = bottom * 0.95
     ymax = top * 0.95
 
@@ -171,11 +175,12 @@ def plot_variances_temporal_progression(
         ax.set_title(name)
         _plot_variance_progression_one_tourney(ax, tournament_var, tournament_lower_var)
 
+    bottom, top = flat_axs[0].get_ylim()
     for ax, (name, id_), (tp_text, team_text) in zip(flat_axs, names__ids, text_params):
         sport = pf.get_sport_name_from_id(id_)
         tournament_tp = _get_tournament_tp()
 
-        _plot_turning_point_line_one_tourney(ax, tournament_tp)
+        _plot_turning_point_line_one_tourney(ax, tournament_tp, bottom, top)
         _plot_turning_point_text_one_tourney(ax, tournament_tp, **tp_text)
 
         if sport_to_num_teams is not None:
