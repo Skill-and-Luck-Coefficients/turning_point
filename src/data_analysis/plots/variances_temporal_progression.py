@@ -148,6 +148,7 @@ def plot_variances_temporal_progression(
     sport_to_lower_envelope_bound: dict[str, ExpandingMetricStats] | None = None,
     sport_to_num_teams: dict[str, pd.Series] | None = None,
     text_params: dict[TextParams] | list[dict[TextParams]] | None = None,
+    sharey: bool = False,
 ) -> None:
 
     def _get_tournament_tp() -> int:
@@ -157,6 +158,11 @@ def plot_variances_temporal_progression(
     def _get_tournament_var() -> pd.DataFrame:
         variances = sport_to_var_stats[sport].df
         return variances.loc[id_].iloc[:last_date]
+
+    def _get_ax_lim():
+        if sharey:
+            return flat_axs[0].get_ylim()
+        return ax.get_ylim()
 
     flat_axs = pf.flatten_axes(axs)
 
@@ -175,12 +181,11 @@ def plot_variances_temporal_progression(
         ax.set_title(name)
         _plot_variance_progression_one_tourney(ax, tournament_var, tournament_lower_var)
 
-    bottom, top = flat_axs[0].get_ylim()
     for ax, (name, id_), (tp_text, team_text) in zip(flat_axs, names__ids, text_params):
         sport = pf.get_sport_name_from_id(id_)
         tournament_tp = _get_tournament_tp()
 
-        _plot_turning_point_line_one_tourney(ax, tournament_tp, bottom, top)
+        _plot_turning_point_line_one_tourney(ax, tournament_tp, *_get_ax_lim())
         _plot_turning_point_text_one_tourney(ax, tournament_tp, **tp_text)
 
         if sport_to_num_teams is not None:

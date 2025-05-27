@@ -13,6 +13,8 @@ def plot_new_pontuation_system(
     tp_columns: dict[str, str] | dict[tuple[str], str],
     no_difference_margin: float = 0.01,
     no_x_axis_data: bool = False,
+    ylim: tuple[float, float] | None = None,
+    xlim: tuple[float, float] | None = None,
 ):
 
     def _remove_x_axis_labels_if_necessary():
@@ -20,6 +22,12 @@ def plot_new_pontuation_system(
             if no_x_axis_data:
                 _ax.set_xticklabels([])
                 _ax.set_xlabel("")
+
+    def _set_lims():
+        if ylim:
+            ax.set_ylim(*ylim)
+        if xlim:
+            ax.set_xlim(*xlim)
 
     ax = axs[0]
     plot_scatter_according_to_line_x_equals_y(
@@ -33,9 +41,8 @@ def plot_new_pontuation_system(
         y_gt_x_percent_kwargs=None,
         title_as_text_kwargs=None,
     )
+    _set_lims()
     ax.set_title("")
-    ax.set_ylim(0, 1)
-    ax.set_xlim(0, 1)
     ax.set_yticks([0, 0.25, 0.5, 0.75])
     ax.set_xticks([0.25, 0.5, 0.75])
 
