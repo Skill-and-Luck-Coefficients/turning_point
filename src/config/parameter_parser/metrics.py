@@ -14,8 +14,39 @@ from .. import types
 from . import utils
 
 
+def _get_probability_per_id(
+    winner_to_probability: dict | None,
+    matches: Matches,
+    winner_type: dict,
+    winner_to_points: dict,
+):
+    def _from_config():
+        _points_to_prob = {
+            winner_to_points[_winner]: _probability
+            for _winner, _probability in winner_to_probability.items()
+        }
+        _ids = matches.df.index.get_level_values("id").unique()
+        return pd.Series(index=_ids, data=[_points_to_prob] * len(_ids)).sort_index()
+
+    def _from_empirical_frequencies():
+        _point_pairs = sorted(set(winner_to_points.values()))
+        _ppm = PointsPerMatch.from_home_away_winner(
+            home_away_winner=matches.home_away_winner(winner_type),
+            result_to_points=winner_to_points,
+        )
+        return _ppm.probabilities_per_id(_point_pairs)
+
+    if winner_to_probability is not None:
+        return _from_config()
+
+    return _from_empirical_frequencies()
+
+
 def _get_metric_stats(
-    matches: Matches, quantile: float, metric: str, **kwargs
+    matches: Matches,
+    quantile: float,
+    metric: str,
+    **kwargs,
 ) -> ms.ExpandingMetricStats:
     """
     This function works both for real matches and permutation matches.
@@ -24,30 +55,32 @@ def _get_metric_stats(
     separately to reduce memory usage.
     """
     winner_to_points = {k: tuple(v) for k, v in kwargs["winner_to_points"].items()}
-    point_pairs = sorted(set(winner_to_points.values()))
 
     all_var_stats: list[pd.DataFrame] = []
     permutation_ids = pc.get_permutation_identifiers(matches.df)
 
     for perm_id in permutation_ids:
         turning_logger.info(f"Starting i-th permutation: {perm_id}")
-
         filtered_matches = Matches(pc.get_data_with_identifier(matches.df, perm_id))
 
-        # TODO: Remove this redundant calculation?
-        filtered_ppm = PointsPerMatch.from_home_away_winner(
-            home_away_winner=filtered_matches.home_away_winner(kwargs["winner_type"]),
-            result_to_points=winner_to_points,
-        )
-        var_stats = ms.ExpandingMetricStats.from_matches(
-            filtered_matches,
-            num_iteration_simulation=kwargs["num_iteration_simulation"],
-            winner_type=kwargs["winner_type"],
-            winner_to_points=winner_to_points,
-            id_to_probabilities=filtered_ppm.probabilities_per_id(point_pairs),
-            quantile=quantile,
-            metric_type=METRIC_MAP[metric],
-        )
+        params = {
+            "winner_to_probability": kwargs.get("winner_to_probability"),
+            "matches": filtered_matches,
+            "winner_type": kwargs["winner_type"],
+            "winner_to_points": winner_to_points,
+        }
+        id_to_probabilities = _get_probability_per_id(**params)
+
+        params = {
+            "matches": filtered_matches,
+            "num_iteration_simulation": kwargs["num_iteration_simulation"],
+            "winner_type": kwargs["winner_type"],
+            "winner_to_points": winner_to_points,
+            "id_to_probabilities": id_to_probabilities,
+            "quantile": quantile,
+            "metric_type": METRIC_MAP[metric],
+        }
+        var_stats = ms.ExpandingMetricStats.from_matches(**params)
 
         all_var_stats.append(var_stats.df)
 

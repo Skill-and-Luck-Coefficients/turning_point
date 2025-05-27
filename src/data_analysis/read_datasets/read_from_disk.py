@@ -54,7 +54,7 @@ KEY_TO_CLASS_DIR: dict[Key, tuple[type[ContainDF], Path]] = {
     "optimal_tp": (pc.PermutationTurningPoint, path.OPTIMAL_TURNING_POINT_PATH),
     "diff_points_tp": (nc.TurningPoint, path.DIFF_POINTS_TURN_POINT_PATH),
     "opt_diff_points_tp": (nc.TurningPoint, path.OPT_DIFF_POINT_TP_PATH),
-    "bt_tp": (nc.TurningPoint, path.BT_TURNING_POINT_PATH),
+    "bt_tp": (pc.PermutationTurningPoint, path.BT_TURNING_POINT_PATH),
 }
 
 

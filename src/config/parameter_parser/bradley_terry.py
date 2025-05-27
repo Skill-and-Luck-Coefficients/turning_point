@@ -9,6 +9,7 @@ from synthetic_tournaments.bradley_terry import simulate_bradley_terry_tourney
 from synthetic_tournaments.break_minimizer import scheduling as min_break
 from synthetic_tournaments.optimal_schedule import algorithm as opt_alg
 from tournament_simulations.data_structures import Matches
+from tournament_simulations.schedules.utils import reversed_schedule
 
 from .. import types
 from . import utils
@@ -26,7 +27,7 @@ def _generate_bt_simulations(
     def _simulate(_simulation_number: int) -> pd.DataFrame:
         simulation_params = {
             **simulate_bt_kwargs,
-            "label": f"{label}_{_simulation_number}",
+            "label": f"{label}@{_simulation_number}",
         }
         return simulate_bradley_terry_tourney(**simulation_params).df
 
@@ -69,6 +70,32 @@ def _create_bt_simulations(
             "randomize_schedule": None,
         }
 
+    def _graph_optimal_max_params():
+        def _scheduling_func(_strenghts):
+            optimal_schedule = opt_alg.generate_optimal_graph_schedule(_strenghts)
+            return reversed_schedule.reverse_schedule(optimal_schedule)
+
+        return {
+            "strengths": strengths,
+            "label": f"{label}_graph_optimal_max",
+            "number_of_drr": number_of_drr,
+            "scheduling_func": _scheduling_func,
+            "randomize_schedule": None,
+        }
+
+    def _recursive_optimal_max_params():
+        def _scheduling_func(_strenghts):
+            optimal_schedule = opt_alg.generate_optimal_graph_schedule(_strenghts)
+            return reversed_schedule.reverse_schedule(optimal_schedule)
+
+        return {
+            "strengths": strengths,
+            "label": f"{label}_recursive_optimal_max",
+            "number_of_drr": number_of_drr,
+            "scheduling_func": _scheduling_func,
+            "randomize_schedule": None,
+        }
+
     def _min_break_graph_optimal_params():
         def _scheduling_func(_strenghts):
             optimal_schedule = opt_alg.generate_optimal_graph_schedule(_strenghts)
@@ -99,8 +126,10 @@ def _create_bt_simulations(
         _generate_bt_simulations(n_simulations, **_purely_random_params()).df,
         _generate_bt_simulations(n_simulations, **_graph_optimal_params()).df,
         _generate_bt_simulations(n_simulations, **_recursive_optimal_params()).df,
-        _generate_bt_simulations(n_simulations, **_min_break_graph_optimal_params()).df,
-        _generate_bt_simulations(n_simulations, **_min_break_rec_optimal_params()).df,
+        _generate_bt_simulations(n_simulations, **_graph_optimal_max_params()).df,
+        _generate_bt_simulations(n_simulations, **_recursive_optimal_max_params()).df,
+        # _generate_bt_simulations(n_simulations, **_min_break_graph_optimal_params()).df,
+        # _generate_bt_simulations(n_simulations, **_min_break_rec_optimal_params()).df,
     ]
     return Matches(pd.concat(simulations))
 
