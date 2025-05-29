@@ -67,11 +67,11 @@
                 "types": {
                     "graph": {
                         "tp_minimizer": ["mirrored", "break_min_mirrored"],
-                        "tp_maximizer": ["mirrored", "reversed", "break_min_mirrored"]
+                        "tp_maximizer": ["mirrored", "reversed", "break_min_mirrored", "break_min_reversed"]
                     },
                     "recursive": {
                         "tp_minimizer": ["mirrored", "break_min_mirrored"],
-                        "tp_maximizer": ["mirrored", "reversed", "break_min_mirrored"]
+                        "tp_maximizer": ["mirrored", "reversed", "break_min_mirrored", "break_min_reversed"]
                     }
                 }
             }
