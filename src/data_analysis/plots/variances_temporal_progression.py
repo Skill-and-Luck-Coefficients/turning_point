@@ -93,6 +93,9 @@ def _plot_turning_point_line_one_tourney(
         print("Turning Point is infinity!")
         return
 
+    if bottom is None or top is None:
+        bottom, top = ax.get_ylim()
+
     ymin = bottom * 0.95
     ymax = top * 0.95
 
@@ -162,7 +165,7 @@ def plot_variances_temporal_progression(
     def _get_ax_lim():
         if sharey:
             return flat_axs[0].get_ylim()
-        return ax.get_ylim()
+        return None, None
 
     flat_axs = pf.flatten_axes(axs)
 
@@ -181,11 +184,12 @@ def plot_variances_temporal_progression(
         ax.set_title(name)
         _plot_variance_progression_one_tourney(ax, tournament_var, tournament_lower_var)
 
+    bottom, top = _get_ax_lim()
     for ax, (name, id_), (tp_text, team_text) in zip(flat_axs, names__ids, text_params):
         sport = pf.get_sport_name_from_id(id_)
         tournament_tp = _get_tournament_tp()
 
-        _plot_turning_point_line_one_tourney(ax, tournament_tp, *_get_ax_lim())
+        _plot_turning_point_line_one_tourney(ax, tournament_tp, bottom, top)
         _plot_turning_point_text_one_tourney(ax, tournament_tp, **tp_text)
 
         if sport_to_num_teams is not None:
