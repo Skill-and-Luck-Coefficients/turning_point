@@ -126,7 +126,7 @@ def _create_bt_simulations(
 
     def _rec_optimal_max_params():
         def _scheduling_func(_strenghts):
-            optimal_schedule = opt_alg.generate_optimal_graph_schedule(_strenghts)
+            optimal_schedule = opt_alg.generate_recursive_optimal_schedule(_strenghts)
             return reversed_schedule.reverse_schedule(optimal_schedule)
 
         return {
