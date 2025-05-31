@@ -29,11 +29,20 @@ def _set_schedule(
     Permute schedule with the given algorithm.
     """
 
+    def _get_ddr_scheduler():
+        if scheduling_func_type == "rankings":
+            _drr_args = (len(strengths), scheduling_func)
+            return DoubleRoundRobin.from_num_teams(*_drr_args)
+
+        _drr_kwargs = {
+            "num_teams": len(strengths),
+            "team_names": list(range(len(strengths))),
+            "first_schedule": scheduling_func(strengths),
+        }
+        return DoubleRoundRobin(**_drr_kwargs)
+
     def _scheduling_fn(_team_names: list[str]):
-        _scheduling_func = kwargs.get("scheduling_func")
-        _number_of_drr = kwargs.get("number_of_drr")
-        _drr = DoubleRoundRobin.from_num_teams(len(_team_names), _scheduling_func)
-        return _drr.get_full_schedule(_number_of_drr, None)
+        return _get_ddr_scheduler().get_full_schedule(number_of_drr, None)
 
     def _get_renamed_index() -> pd.MultiIndex:
         # fmt: off
@@ -43,6 +52,11 @@ def _set_schedule(
         ]
         # fmt: on
         return pd.MultiIndex.from_arrays(_new_index_arrays)
+
+    strengths = kwargs["strengths"]
+    number_of_drr = kwargs["number_of_drr"]
+    scheduling_func = kwargs["scheduling_func"]
+    scheduling_func_type = kwargs["scheduling_func_type"]
 
     scheduler_params = {
         "func_schedule": _scheduling_fn,
@@ -90,6 +104,7 @@ def _create_bt_simulations(
             "label": f"{label}_purely_random",
             "number_of_drr": number_of_drr,
             "scheduling_func": "circle",
+            "scheduling_func_type": "rankings",
             "randomize_schedule": "all",
         }
 
@@ -99,6 +114,21 @@ def _create_bt_simulations(
             "label": f"{label}_graph_optimal",
             "number_of_drr": number_of_drr,
             "scheduling_func": opt_alg.generate_optimal_graph_schedule,
+            "scheduling_func_type": "rankings",
+            "randomize_schedule": None,
+        }
+
+    def _graph_optimal_prob_params():
+        def _scheduling_func(_strenghts):
+            _weight_fn = lambda x, y: max(x, y) / (x + y)
+            return opt_alg.generate_optimal_graph_schedule(_strenghts, _weight_fn)
+
+        return {
+            "strengths": strengths,
+            "label": f"{label}_graph_optimal_prob",
+            "number_of_drr": number_of_drr,
+            "scheduling_func": _scheduling_func,
+            "scheduling_func_type": "strengths",
             "randomize_schedule": None,
         }
 
@@ -108,6 +138,7 @@ def _create_bt_simulations(
             "label": f"{label}_recursive_optimal",
             "number_of_drr": number_of_drr,
             "scheduling_func": opt_alg.generate_recursive_optimal_schedule,
+            "scheduling_func_type": "rankings",
             "randomize_schedule": None,
         }
 
@@ -121,6 +152,22 @@ def _create_bt_simulations(
             "label": f"{label}_graph_optimal_max",
             "number_of_drr": number_of_drr,
             "scheduling_func": _scheduling_func,
+            "scheduling_func_type": "rankings",
+            "randomize_schedule": None,
+        }
+
+    def _graph_opt_max_prob_params():
+        def _scheduling_func(_strenghts):
+            _weight_fn = lambda x, y: max(x, y) / (x + y)
+            _schedule = opt_alg.generate_optimal_graph_schedule(_strenghts, _weight_fn)
+            return reversed_schedule.reverse_schedule(_schedule)
+
+        return {
+            "strengths": strengths,
+            "label": f"{label}_graph_optimal_max_prob",
+            "number_of_drr": number_of_drr,
+            "scheduling_func": _scheduling_func,
+            "scheduling_func_type": "strengths",
             "randomize_schedule": None,
         }
 
@@ -134,32 +181,7 @@ def _create_bt_simulations(
             "label": f"{label}_recursive_optimal_max",
             "number_of_drr": number_of_drr,
             "scheduling_func": _scheduling_func,
-            "randomize_schedule": None,
-        }
-
-    def _min_break_graph_optimal_params():
-        def _scheduling_func(_strenghts):
-            optimal_schedule = opt_alg.generate_optimal_graph_schedule(_strenghts)
-            return min_break.min_break_schedule_from_list_schedule(optimal_schedule)
-
-        return {
-            "strengths": strengths,
-            "label": f"{label}_min_break_graph_optimal",
-            "number_of_drr": number_of_drr,
-            "scheduling_func": _scheduling_func,
-            "randomize_schedule": None,
-        }
-
-    def _min_break_rec_optimal_params():
-        def _scheduling_func(_strenghts):
-            optimal_schedule = opt_alg.generate_recursive_optimal_schedule(_strenghts)
-            return min_break.min_break_schedule_from_list_schedule(optimal_schedule)
-
-        return {
-            "strengths": strengths,
-            "label": f"{label}_min_break_recursive_optimal",
-            "number_of_drr": number_of_drr,
-            "scheduling_func": _scheduling_func,
+            "scheduling_func_type": "rankings",
             "randomize_schedule": None,
         }
 
@@ -170,6 +192,8 @@ def _create_bt_simulations(
             _generate_bt_simulations(n_simulations, **_rec_optimal_params()).df,
             _generate_bt_simulations(n_simulations, **_graph_optimal_max_params()).df,
             _generate_bt_simulations(n_simulations, **_rec_optimal_max_params()).df,
+            _generate_bt_simulations(n_simulations, **_graph_optimal_prob_params()).df,
+            _generate_bt_simulations(n_simulations, **_graph_opt_max_prob_params()).df,
         ]
 
     if type_simulation == "same_results":
@@ -183,6 +207,8 @@ def _create_bt_simulations(
             _set_schedule(simulations, random_label, **_rec_optimal_params()).df,
             _set_schedule(simulations, random_label, **_graph_optimal_max_params()).df,
             _set_schedule(simulations, random_label, **_rec_optimal_max_params()).df,
+            _set_schedule(simulations, random_label, **_graph_optimal_prob_params()).df,
+            _set_schedule(simulations, random_label, **_graph_opt_max_prob_params()).df,
         ]
 
     return Matches(pd.concat(simulations))

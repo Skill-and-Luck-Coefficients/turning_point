@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Literal
 
 import numpy as np
 import pandas as pd
@@ -14,6 +14,7 @@ def _simulate_bt_tourney_no_randomness(
     number_of_drr: int,
     rand_first: str | None,
     scheduling_func: str | Callable,
+    scheduling_func_type: Literal["rankings", "strengths"],
     random_fn: Callable[[int], np.ndarray],
 ) -> Matches:
     """
@@ -23,9 +24,20 @@ def _simulate_bt_tourney_no_randomness(
     ]
     """
 
-    def _build_schedule_df() -> pd.DataFrame:
-        _drr = ts_rr.DoubleRoundRobin.from_num_teams(len(strengths), scheduling_func)
-        _schedule = _drr.get_full_schedule(number_of_drr, rand_first)
+    def _get_ddr_scheduler():
+        if scheduling_func_type == "rankings":
+            _drr_args = (len(strengths), scheduling_func)
+            return ts_rr.DoubleRoundRobin.from_num_teams(*_drr_args)
+
+        _drr_kwargs = {
+            "num_teams": len(strengths),
+            "team_names": list(range(len(strengths))),
+            "first_schedule": scheduling_func(strengths),
+        }
+        return ts_rr.DoubleRoundRobin(**_drr_kwargs)
+
+    def _get_full_schedule_as_df() -> pd.DataFrame:
+        _schedule = drr_scheduler.get_full_schedule(number_of_drr, rand_first)
         return convert_list_of_rounds_to_dataframe(_schedule, label)
 
     def _get_team_strengths_rowwise() -> pd.DataFrame:
@@ -44,7 +56,8 @@ def _simulate_bt_tourney_no_randomness(
         _uniform_values = random_fn(len(schedule))
         return (_uniform_values <= _prob_home_win).map({True: "h", False: "a"})
 
-    schedule = _build_schedule_df()
+    drr_scheduler = _get_ddr_scheduler()
+    schedule = _get_full_schedule_as_df()
 
     skill_per_match = _get_team_strengths_rowwise()
     schedule["winner"] = _simulate_row_winner()
@@ -57,6 +70,7 @@ def simulate_bradley_terry_tourney(
     label: str = "bradley_terry",
     number_of_drr: int = 1,
     scheduling_func: str | Callable = "circle",
+    scheduling_func_type: Literal["rankings", "strengths"] = "rankings",
     randomize_schedule: str | list[str] | None = "all",
 ) -> Matches:
     """
@@ -82,6 +96,9 @@ def simulate_bradley_terry_tourney(
         scheduling_func: str | Callable[[int], list[Round]] = "circle"
             Function responsible for creating a schedule.
 
+        scheduling_func_type: Literal["rankings", "strenghts"] = "rankings"
+            How to apply the scheduling function: to the rankings, or to the strengths.
+
     ----
     Returns:
         Matches
@@ -93,5 +110,6 @@ def simulate_bradley_terry_tourney(
         number_of_drr,
         rand_first=randomize_schedule,
         scheduling_func=scheduling_func,
+        scheduling_func_type=scheduling_func_type,
         random_fn=np.random.random,
     )
