@@ -4,8 +4,8 @@ Repository for calculating turning points.
 ## **Reproducibility**
 
 **Seeds**: `src/parameters.json` contains the default seeds used.
-**Remark**: OPTIMAL_SCHEDULE with match type 'break_min_reversed' ran after the rest.
-There was no time to ran all metrics again. Seeds used: 10 for "matches",11 for "turning_point".
+**Remark (OPTIMAL_SCHEDULE)**: Other metrics section (including variance) was run withough match type 'break_min_reversed'.
+Other results were obtained by running just variance with all match types.
 
 Sample for tounament match information:
 
