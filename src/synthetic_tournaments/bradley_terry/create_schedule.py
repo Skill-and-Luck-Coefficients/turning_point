@@ -7,6 +7,9 @@ import tournament_simulations.schedules.round_robin as ts_rr
 from tournament_simulations.data_structures import Matches
 from tournament_simulations.schedules import convert_list_of_rounds_to_dataframe
 
+HomeAdvantageKeys = Literal["additive", "multiplicative"]
+NO_HOME_ADVANTAGE = {"additive": 0, "multiplicative": 1}
+
 
 def _simulate_bt_tourney_no_randomness(
     strengths: list[float],
@@ -15,6 +18,7 @@ def _simulate_bt_tourney_no_randomness(
     rand_first: str | None,
     scheduling_func: str | Callable,
     scheduling_func_type: Literal["rankings", "strengths"],
+    home_advantage: dict[HomeAdvantageKeys, float],
     random_fn: Callable[[int], np.ndarray],
 ) -> Matches:
     """
@@ -49,9 +53,14 @@ def _simulate_bt_tourney_no_randomness(
             }
         )
 
+    def _add_home_advantage(_skill_home: float) -> float:
+        _skill_home = _skill_home + home_advantage["additive"]
+        return home_advantage["multiplicative"] * _skill_home
+
     def _simulate_row_winner() -> pd.Series:
-        _skill_per_match_sum = skill_per_match["home"] + skill_per_match["away"]
-        _prob_home_win = skill_per_match["home"] / _skill_per_match_sum
+        _skill_home = _add_home_advantage(skill_per_match["home"])
+        _skill_per_match_sum = _skill_home + skill_per_match["away"]
+        _prob_home_win = _skill_home / _skill_per_match_sum
 
         _uniform_values = random_fn(len(schedule))
         return (_uniform_values <= _prob_home_win).map({True: "h", False: "a"})
@@ -72,9 +81,16 @@ def simulate_bradley_terry_tourney(
     scheduling_func: str | Callable = "circle",
     scheduling_func_type: Literal["rankings", "strengths"] = "rankings",
     randomize_schedule: str | list[str] | None = "all",
+    home_advantage: dict[HomeAdvantageKeys, float] = NO_HOME_ADVANTAGE,
 ) -> Matches:
     """
     Simulate one tournament from Bradley-Terry's pairwise comparison probabilities.
+
+    Let 'h' represent the home-team, and 'a' represent the away-team. <br>
+    Then the probability that the home-team wins is given by:
+    ```
+        p_{ha} = strength_h / (strength_h + strength_a )
+    ```
 
     ----
     Parameters:
@@ -99,6 +115,14 @@ def simulate_bradley_terry_tourney(
         scheduling_func_type: Literal["rankings", "strenghts"] = "rankings"
             How to apply the scheduling function: to the rankings, or to the strengths.
 
+        home_advantage: dict[Literal["additive", "multiplicative"], float] = NO_HOME_ADVANTAGE
+            Add home advantage to the simulations.
+            ```
+            "additive": Flat value added to home-team strength.
+            "multiplicative": Multiplies home-team strength.
+
+            new_strength_h = (additive + strength_h) * multiplicative
+            ```
     ----
     Returns:
         Matches
@@ -111,5 +135,6 @@ def simulate_bradley_terry_tourney(
         rand_first=randomize_schedule,
         scheduling_func=scheduling_func,
         scheduling_func_type=scheduling_func_type,
+        home_advantage=home_advantage,
         random_fn=np.random.random,
     )
