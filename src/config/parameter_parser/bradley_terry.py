@@ -19,6 +19,8 @@ from tournament_simulations.schedules.utils import reversed_schedule
 from .. import types
 from . import utils
 
+HOME_ADVANTAGE = NO_HOME_ADVANTAGE
+
 
 def _set_schedule(
     matches: Matches,
@@ -107,7 +109,7 @@ def _create_bt_simulations(
             "scheduling_func": "circle",
             "scheduling_func_type": "rankings",
             "randomize_schedule": "all",
-            "home_advantage": NO_HOME_ADVANTAGE,
+            "home_advantage": HOME_ADVANTAGE,
         }
 
     def _graph_optimal_params():
@@ -118,7 +120,7 @@ def _create_bt_simulations(
             "scheduling_func": opt_alg.generate_optimal_graph_schedule,
             "scheduling_func_type": "rankings",
             "randomize_schedule": None,
-            "home_advantage": NO_HOME_ADVANTAGE,
+            "home_advantage": HOME_ADVANTAGE,
         }
 
     def _graph_optimal_prob_params():
@@ -133,7 +135,7 @@ def _create_bt_simulations(
             "scheduling_func": _scheduling_func,
             "scheduling_func_type": "strengths",
             "randomize_schedule": None,
-            "home_advantage": NO_HOME_ADVANTAGE,
+            "home_advantage": HOME_ADVANTAGE,
         }
 
     def _rec_optimal_params():
@@ -144,7 +146,7 @@ def _create_bt_simulations(
             "scheduling_func": opt_alg.generate_recursive_optimal_schedule,
             "scheduling_func_type": "rankings",
             "randomize_schedule": None,
-            "home_advantage": NO_HOME_ADVANTAGE,
+            "home_advantage": HOME_ADVANTAGE,
         }
 
     def _graph_optimal_max_params():
@@ -159,7 +161,7 @@ def _create_bt_simulations(
             "scheduling_func": _scheduling_func,
             "scheduling_func_type": "rankings",
             "randomize_schedule": None,
-            "home_advantage": NO_HOME_ADVANTAGE,
+            "home_advantage": HOME_ADVANTAGE,
         }
 
     def _graph_opt_max_prob_params():
@@ -175,7 +177,7 @@ def _create_bt_simulations(
             "scheduling_func": _scheduling_func,
             "scheduling_func_type": "strengths",
             "randomize_schedule": None,
-            "home_advantage": NO_HOME_ADVANTAGE,
+            "home_advantage": HOME_ADVANTAGE,
         }
 
     def _rec_optimal_max_params():
@@ -190,7 +192,7 @@ def _create_bt_simulations(
             "scheduling_func": _scheduling_func,
             "scheduling_func_type": "rankings",
             "randomize_schedule": None,
-            "home_advantage": NO_HOME_ADVANTAGE,
+            "home_advantage": HOME_ADVANTAGE,
         }
 
     if type_simulation == "all_random":
