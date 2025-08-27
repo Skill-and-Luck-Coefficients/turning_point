@@ -123,7 +123,7 @@ def _create_bt_simulations(
 
     def _graph_optimal_prob_params():
         def _scheduling_func(_strenghts):
-            _weight_fn = lambda x, y: max(x, y) / (x + y)
+            _weight_fn = lambda x, y: (x - y) ** 2
             return opt_alg.generate_optimal_graph_schedule(_strenghts, _weight_fn)
 
         return {
@@ -164,7 +164,7 @@ def _create_bt_simulations(
 
     def _graph_opt_max_prob_params():
         def _scheduling_func(_strenghts):
-            _weight_fn = lambda x, y: max(x, y) / (x + y)
+            _weight_fn = lambda x, y: (x - y) ** 2
             _schedule = opt_alg.generate_optimal_graph_schedule(_strenghts, _weight_fn)
             return reversed_schedule.reverse_schedule(_schedule)
 
