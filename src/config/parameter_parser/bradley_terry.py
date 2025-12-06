@@ -19,7 +19,7 @@ from tournament_simulations.schedules.utils import reversed_schedule
 from .. import types
 from . import utils
 
-HOME_ADVANTAGE = NO_HOME_ADVANTAGE
+HOME_ADVANTAGE = {"additive": 0, "multiplicative": 1.7783}
 
 
 def _set_schedule(
